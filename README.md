@@ -1,0 +1,631 @@
+# Capability-Driven Delivery (CDD)
+
+> **Traditional software development manages work and reconstructs knowledge. Capability-Driven Delivery manages knowledge and derives work.**
+
+---
+
+# Overview
+
+Capability-Driven Delivery (CDD) is an AI-native software delivery methodology that treats **system understanding as a first-class artifact**.
+
+Rather than repeatedly reconstructing context from source code, tickets, and documentation for every initiative, CDD builds and maintains a **persistent knowledge model** of the system that continuously evolves alongside the implementation.
+
+Every initiative begins from that knowledge model and ends by improving it.
+
+---
+
+# Core Philosophy
+
+Traditional software delivery revolves around **work artifacts**:
+
+* Epics
+* User Stories
+* Tasks
+* Bugs
+
+These artifacts are valuable during execution but become historical records once work is complete.
+
+CDD shifts the focus toward **Capabilities**.
+
+Capabilities represent enduring business behavior that evolves over the lifetime of the system.
+
+Execution plans are temporary.
+
+Knowledge is permanent.
+
+---
+
+# Getting Started
+
+## Step 1 - Create the Project Context
+
+Create a folder in the root of your repository:
+
+```text
+project-context/
+```
+
+This folder will contain the persistent knowledge model.
+
+---
+
+## Step 2 - Run Project Discovery
+
+Execute:
+
+```
+/project-discovery
+```
+
+This generates:
+
+```
+project-context/
+
+    project.md
+
+    manifest.json
+```
+
+These files establish high-level understanding of the repository.
+
+---
+
+## Step 3 - Run Repository Inventory
+
+Execute:
+
+```
+/repository-inventory
+```
+
+This generates:
+
+```
+project-context/
+
+    repository-inventory.md
+```
+
+This provides a structural inventory of the repository.
+
+---
+
+## Step 4 - Run Historical PRD Discovery
+
+Execute:
+
+```
+/historical-prd-discovery
+```
+
+This generates:
+
+```
+project-context/
+
+    intent-catalog.json
+
+    historical-prd-summary.md
+```
+
+These artifacts establish historical business intent and terminology.
+
+---
+
+## Step 5 - Run the Bootstrapper
+
+Execute:
+
+```
+/bootstrapper
+```
+
+The Bootstrapper synthesizes:
+
+* Project Discovery
+* Repository Inventory
+* Historical Product Intent
+* Source Code
+* Documentation
+
+into an initial Capability Graph.
+
+It generates:
+
+```text
+project-context/
+
+    capabilities.json
+
+    capabilities/
+
+        CAP-001/
+
+        CAP-002/
+
+        ...
+```
+
+---
+
+## Step 6 - Run the Enricher
+
+Execute:
+
+```
+/enricher
+```
+
+Pass the capability(s) you wish to enrich.
+
+Example:
+
+```
+/enricher CAP-001
+```
+
+or
+
+```
+/enricher CAP-001 CAP-002 CAP-003
+```
+
+For large repositories, launch multiple background agents simultaneously.
+
+Example:
+
+```
+Agent 1 → CAP-001 ... CAP-005
+
+Agent 2 → CAP-006 ... CAP-010
+
+Agent 3 → CAP-011 ... CAP-015
+```
+
+This significantly accelerates enrichment.
+
+---
+
+# The Knowledge Model is Now Ready
+
+At this point the repository contains a persistent Capability Graph that becomes the foundation for all future initiatives.
+
+---
+
+# Delivering a Change
+
+## Step 1 - Create an Initiative
+
+Create:
+
+```text
+initiatives/
+
+    001-add-reporting-exports/
+```
+
+Inside the initiative folder create:
+
+```
+PRD.md
+```
+
+The PRD describes the desired business change.
+
+---
+
+## Step 2 - Run Planner
+
+Execute:
+
+```
+/planner
+```
+
+Pass the initiative directory.
+
+Example:
+
+```
+/planner initiatives/001-add-reporting-exports/
+```
+
+Planner generates:
+
+```
+CCR/
+
+execution-plan.md
+```
+
+---
+
+## Step 3 - Review
+
+Engineering and Product review:
+
+* CCR(s)
+* execution-plan.md
+
+The CCR describes how existing capabilities evolve.
+
+The execution plan describes how implementation will occur.
+
+---
+
+## Step 4 - Generate Assignments
+
+Execute:
+
+```
+/techlead
+```
+
+Pass the initiative directory.
+
+Example:
+
+```
+/techlead initiatives/001-add-reporting-exports/
+```
+
+This produces:
+
+```
+assignments.md
+```
+
+which assigns execution tasks to implementation agents while maximizing parallel execution.
+
+---
+
+## Step 5 - Implement
+
+Execute:
+
+```
+/implementer
+```
+
+Pass the initiative directory.
+
+The Implementer executes the assignment plan using the generated agent team.
+
+---
+
+## Step 6 - Review
+
+Execute:
+
+```
+/reviewer
+```
+
+Pass the initiative directory.
+
+The Reviewer validates:
+
+* CCR compliance
+* Execution Plan compliance
+* Architecture
+* Behavior
+* Test coverage
+* Regression risk
+
+---
+
+## Step 7 - Update Knowledge
+
+After implementation has been approved:
+
+Execute:
+
+```
+/steward
+```
+
+Pass the initiative directory.
+
+The Steward synchronizes the Capability Graph with the newly implemented behavior.
+
+The initiative is complete.
+
+---
+
+# Repository Layout
+
+```text
+repository/
+
+├── project-context/
+│
+│   ├── project.md
+│   ├── manifest.json
+│   ├── repository-inventory.md
+│   ├── intent-catalog.json
+│   ├── historical-prd-summary.md
+│   ├── capabilities.json
+│   │
+│   └── capabilities/
+│
+│       ├── CAP-001/
+│       ├── CAP-002/
+│       └── ...
+│
+├── initiatives/
+│
+│   └── 001-add-reporting-exports/
+│
+│       ├── PRD.md
+│       ├── CCR/
+│       ├── execution-plan.md
+│       ├── assignments.md
+│       └── review-report.md
+│
+└── skills/
+```
+
+---
+
+# Capability Structure
+
+Each capability contains:
+
+```text
+CAP-001/
+
+    intent.md
+
+    behavior.md
+
+    architecture.md
+
+    implementation.md
+
+    verification.md
+
+    history.md
+
+    dependencies.md
+
+    ai-context.md
+```
+
+---
+
+# Capability Artifact Descriptions
+
+## intent.md
+
+Describes:
+
+* Business purpose
+* Customer value
+* Goals
+* Constraints
+
+---
+
+## behavior.md
+
+Describes:
+
+* Observable behavior
+* Business rules
+* State transitions
+* Edge cases
+
+---
+
+## architecture.md
+
+Describes:
+
+* Responsibilities
+* High-level interactions
+* Ownership boundaries
+* System organization
+
+---
+
+## implementation.md
+
+Documents:
+
+* Repository locations
+* Modules
+* Services
+* Entry points
+
+Provides navigation guidance.
+
+---
+
+## verification.md
+
+Documents:
+
+* Acceptance expectations
+* Integration expectations
+* Critical scenarios
+* Edge cases
+
+---
+
+## history.md
+
+Captures:
+
+* Business evolution
+* Major architectural changes
+* Historical context
+
+---
+
+## dependencies.md
+
+Documents relationships between capabilities.
+
+---
+
+## ai-context.md
+
+Provides:
+
+* Repository navigation hints
+* Architectural assumptions
+* Extension points
+* Existing patterns
+* Common pitfalls
+
+This file exists exclusively to reduce future context reconstruction.
+
+---
+
+# Glossary
+
+## Capability
+
+An enduring business behavior implemented by the system.
+
+Capabilities evolve over time and outlive individual initiatives.
+
+---
+
+## Capability Graph
+
+The complete collection of capability knowledge representing system understanding.
+
+It is the primary artifact of CDD.
+
+---
+
+## PRD (Product Requirements Document)
+
+Describes the business problem and desired outcome.
+
+Written by Product.
+
+Does not reference implementation.
+
+---
+
+## CCR (Capability Change Request)
+
+Describes how one or more capabilities must evolve to satisfy a PRD.
+
+Generated by the Planner.
+
+Bridges Product intent and Engineering implementation.
+
+---
+
+## Execution Plan
+
+A temporary implementation plan generated from the Capability Graph.
+
+Exists only for the duration of the initiative.
+
+---
+
+## Assignment Plan
+
+Maps execution tasks to implementation agents while maximizing parallel execution.
+
+---
+
+## Bootstrapper
+
+Constructs the initial Capability Graph from the repository and historical artifacts.
+
+---
+
+## Enricher
+
+Improves the quality of existing capabilities.
+
+Does not create new capabilities.
+
+---
+
+## Planner
+
+Transforms a PRD into CCR(s) and an execution plan.
+
+---
+
+## Implementer
+
+Executes assigned implementation tasks.
+
+---
+
+## Reviewer
+
+Validates implementation against the approved CCR and execution plan.
+
+---
+
+## Steward
+
+Synchronizes the Capability Graph after implementation is complete.
+
+---
+
+# Lifecycle
+
+```text
+Knowledge Bootstrap
+
+Project Discovery
+        │
+Repository Inventory
+        │
+Historical PRD Discovery
+        │
+Bootstrapper
+        │
+Enricher
+        ▼
+Capability Graph
+
+
+Delivery
+
+PRD
+ │
+ ▼
+Planner
+ │
+ ▼
+CCR(s)
+ │
+ ▼
+Execution Plan
+ │
+ ▼
+Assignments
+ │
+ ▼
+Implementer
+ │
+ ▼
+Reviewer
+ │
+ ▼
+Steward
+ │
+ ▼
+Updated Capability Graph
+```
+
+---
+
+# Guiding Principle
+
+> **Every initiative should leave the system easier to understand than it was before the initiative began.**
+
+The objective of CDD is not simply to automate software development.
+
+The objective is to build a persistent understanding of the system that compounds over time, allowing both humans and AI agents to spend less time reconstructing context and more time delivering value.
