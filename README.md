@@ -200,7 +200,7 @@ At this point the repository contains a persistent Capability Graph that becomes
 Create:
 
 ```text
-initiatives/
+project-context/initiatives/
 
     001-add-reporting-exports/
 ```
@@ -244,7 +244,7 @@ current-state brief
 Inquiry generates:
 
 ```
-initiatives/001-add-reporting-exports/
+project-context/initiatives/001-add-reporting-exports/
 
     current-state-brief.md
 ```
@@ -266,7 +266,7 @@ Pass the initiative directory and describe the desired change.
 Example:
 
 ```
-/prd-writer initiatives/001-add-reporting-exports/
+/prd-writer project-context/initiatives/001-add-reporting-exports/
 ```
 
 The PRD Writer answers:
@@ -276,9 +276,9 @@ The PRD Writer answers:
 It reads the Current-State Brief, clarifies product intent, optionally performs industry and incumbent research, and produces:
 
 ```
-initiatives/001-add-reporting-exports/
+project-context/initiatives/001-add-reporting-exports/
 
-    PRD.md
+    prd.md
 ```
 
 The PRD is implementation-agnostic.
@@ -300,7 +300,7 @@ Pass the initiative directory.
 Example:
 
 ```
-/planner initiatives/001-add-reporting-exports/
+/planner project-context/initiatives/001-add-reporting-exports/
 ```
 
 Planner generates:
@@ -339,7 +339,7 @@ Pass the initiative directory.
 Example:
 
 ```
-/techlead initiatives/001-add-reporting-exports/
+/techlead project-context/initiatives/001-add-reporting-exports/
 ```
 
 This produces:
@@ -419,22 +419,22 @@ repository/
 │   ├── historical-prd-summary.md
 │   ├── capabilities.json
 │   │
-│   └── capabilities/
+│   ├── capabilities/
+│   │
+│   │   ├── CAP-001/
+│   │   ├── CAP-002/
+│   │   └── ...
+│   │
+│   └── initiatives/
 │
-│       ├── CAP-001/
-│       ├── CAP-002/
-│       └── ...
+│       └── 001-add-reporting-exports/
 │
-├── initiatives/
-│
-│   └── 001-add-reporting-exports/
-│
-│       ├── current-state-brief.md
-│       ├── PRD.md
-│       ├── CCR/
-│       ├── execution-plan.md
-│       ├── assignments.md
-│       └── review-report.md
+│           ├── current-state-brief.md
+│           ├── prd.md
+│           ├── CCR/
+│           ├── execution-plan.md
+│           ├── assignments.md
+│           └── review-report.md
 │
 └── skills/
 ```

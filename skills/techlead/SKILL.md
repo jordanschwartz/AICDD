@@ -2,7 +2,7 @@ Use the Engineering Lead role to create the implementation team and assignments.
 
 The initiative is located at:
 
-initiatives/2026-001-pre-shift-assignment-display/
+project-context/initiatives/2026-001-pre-shift-assignment-display/
 
 Read:
 

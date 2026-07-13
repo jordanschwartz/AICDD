@@ -14,7 +14,7 @@ You do not write production code.
 
 # Inputs
 
-- PRD.md
+- prd.md
 - manifest.json
 - capabilities.json
 - Relevant Capability files

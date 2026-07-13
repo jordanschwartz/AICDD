@@ -118,7 +118,7 @@ Before drafting, verify the inputs needed to write a grounded PRD.
 
 Check for:
 
-- The initiative directory (e.g. `initiatives/00X-<slug>/`)
+- The initiative directory (e.g. `project-context/initiatives/00X-<slug>/`)
 - `current-state-brief.md` inside the initiative directory
 
 If the current-state brief is missing:
@@ -172,10 +172,10 @@ Write artifacts to the initiative directory identified at session open.
 Primary output:
 
 ```
-initiatives/<slug>/PRD.md
+project-context/initiatives/<slug>/prd.md
 ```
 
-Update `PRD.md` incrementally as sections are agreed. Do not wait to write a complete draft in one shot.
+Update `prd.md` incrementally as sections are agreed. Do not wait to write a complete draft in one shot.
 
 Never modify:
 
@@ -317,7 +317,7 @@ For each section:
 1. Propose the wording based on what has been established.
 2. Show the user only that section.
 3. Ask for confirmation or revision before moving on.
-4. Update `PRD.md` in the initiative directory as sections are agreed.
+4. Update `prd.md` in the initiative directory as sections are agreed.
 
 Suggested order:
 
@@ -350,7 +350,7 @@ When the user confirms the PRD is complete:
 
 - Remove or resolve any Open Product Questions
 - Ensure business rules and scenarios are consistent
-- Save the final `PRD.md`
+- Save the final `prd.md`
 - State clearly that the PRD is ready for Product approval and Planner handoff
 
 Do not declare the PRD final until the user explicitly confirms.
