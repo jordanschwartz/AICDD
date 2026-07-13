@@ -205,17 +205,89 @@ initiatives/
     001-add-reporting-exports/
 ```
 
-Inside the initiative folder create:
+This folder will hold every artifact produced for the initiative.
 
-```
-PRD.md
-```
+The PRD is not written by hand.
 
-The PRD describes the desired business change.
+It is produced by the PRD Writer after Capability Inquiry.
 
 ---
 
-## Step 2 - Run Planner
+## Step 2 - Run Inquiry
+
+Execute:
+
+```
+/inquiry
+```
+
+Ask about the area of the system you are considering changing.
+
+Example:
+
+```
+/inquiry How do reporting exports work today?
+```
+
+Inquiry answers:
+
+> What is true today?
+
+It reads the Capability Graph and, only when necessary, verifies against the repository.
+
+When ready to prepare for a PRD, ask for a Current-State Brief:
+
+```
+current-state brief
+```
+
+Inquiry generates:
+
+```
+initiatives/001-add-reporting-exports/
+
+    current-state-brief.md
+```
+
+This brief establishes the shared understanding of existing behavior that the PRD will build against.
+
+---
+
+## Step 3 - Run PRD Writer
+
+Execute:
+
+```
+/prd-writer
+```
+
+Pass the initiative directory and describe the desired change.
+
+Example:
+
+```
+/prd-writer initiatives/001-add-reporting-exports/
+```
+
+The PRD Writer answers:
+
+> What should become true?
+
+It reads the Current-State Brief, clarifies product intent, optionally performs industry and incumbent research, and produces:
+
+```
+initiatives/001-add-reporting-exports/
+
+    PRD.md
+```
+
+The PRD is implementation-agnostic.
+
+It describes desired product behavior, business rules, scope boundaries, and success criteria.
+
+---
+
+## Step 4 - Run Planner
 
 Execute:
 
@@ -241,7 +313,7 @@ execution-plan.md
 
 ---
 
-## Step 3 - Review
+## Step 5 - Review
 
 Engineering and Product review:
 
@@ -254,7 +326,7 @@ The execution plan describes how implementation will occur.
 
 ---
 
-## Step 4 - Generate Assignments
+## Step 6 - Generate Assignments
 
 Execute:
 
@@ -280,7 +352,7 @@ which assigns execution tasks to implementation agents while maximizing parallel
 
 ---
 
-## Step 5 - Implement
+## Step 7 - Implement
 
 Execute:
 
@@ -294,7 +366,7 @@ The Implementer executes the assignment plan using the generated agent team.
 
 ---
 
-## Step 6 - Review
+## Step 8 - Review
 
 Execute:
 
@@ -315,7 +387,7 @@ The Reviewer validates:
 
 ---
 
-## Step 7 - Update Knowledge
+## Step 9 - Update Knowledge
 
 After implementation has been approved:
 
@@ -357,6 +429,7 @@ repository/
 │
 │   └── 001-add-reporting-exports/
 │
+│       ├── current-state-brief.md
 │       ├── PRD.md
 │       ├── CCR/
 │       ├── execution-plan.md
@@ -501,11 +574,21 @@ It is the primary artifact of CDD.
 
 ---
 
+## Current-State Brief
+
+A synthesized description of what the system does today for the area under consideration.
+
+Produced by Inquiry.
+
+Provides the baseline that the PRD is written against.
+
+---
+
 ## PRD (Product Requirements Document)
 
 Describes the business problem and desired outcome.
 
-Written by Product.
+Produced by the PRD Writer in collaboration with Product.
 
 Does not reference implementation.
 
@@ -546,6 +629,28 @@ Constructs the initial Capability Graph from the repository and historical artif
 Improves the quality of existing capabilities.
 
 Does not create new capabilities.
+
+---
+
+## Inquiry
+
+Answers the question "What is true today?".
+
+Reads the Capability Graph and, only when necessary, verifies against the repository.
+
+Produces conversational answers or a Current-State Brief.
+
+Does not define desired future state.
+
+---
+
+## PRD Writer
+
+Answers the question "What should become true?".
+
+Takes the Current-State Brief plus human intent and, optionally, industry and incumbent research to produce a precise, implementation-agnostic PRD.
+
+Does not plan the change.
 
 ---
 
@@ -593,6 +698,15 @@ Capability Graph
 
 Delivery
 
+Inquiry
+ │
+ ▼
+Current-State Brief
+ │
+ ▼
+PRD Writer
+ │
+ ▼
 PRD
  │
  ▼
