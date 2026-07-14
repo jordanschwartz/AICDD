@@ -765,3 +765,11 @@ Instruction fixes found in the first real use of these skills (packaging them fo
 4. Bless evidence-based correction of wrong bootstrap claims (14+ found in one run) and require a correction note.
 5. Standard resolution for boundary-straddling code: document the seam in dependencies.md — agents converged on this independently.
 6. Add a channel for source-doc defects found during enrichment (stale diagrams/docs) — currently parked in ai-context pitfall notes.
+
+### Framework/plugin-mode notes (from building the DAF map, 2026-07-13)
+The bootstrap skills assume a business app and fight a framework/substrate map. A "plugin mode" should:
+1. Invert the capability rule — for a framework, "Command Pipeline / Message Delivery / Unit of Work" ARE the capabilities (the skills list these shapes as *bad* examples for business apps).
+2. Name capabilities by the guarantee a consumer relies on, not a business behavior.
+3. Allow implementation facts in the map — a framework's guarantee often IS an implementation fact (commit ordering, fail-open cache); load verification.md, keep intent.md thin.
+4. historical-prd-discovery has no PRDs for a framework — fall back to XML doc-comments (label "source") + commit history (label "commit-derived").
+5. intent-catalog.json is business-vocabulary shaped; repurpose for framework-contract concepts.
