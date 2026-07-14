@@ -757,3 +757,11 @@ Instruction fixes found in the first real use of these skills (packaging them fo
 3. **repository-inventory endpoint granularity is controller-level.** The skill should state explicitly that API endpoints are inventoried at the controller (or router/module) level, not per-route. Per-route inventories balloon on large services and duplicate what the source itself expresses better.
 
 4. **Capability directory slug rule should be explicit.** Capability directories follow `CAP-NNN-lowercase-hyphen` (zero-padded three-digit number, then a lowercase hyphenated slug, e.g. `CAP-007-payment-processing`). The bootstrapper body shows `CAP-001-...` by example only; the rule should be stated so independently bootstrapped repos produce consistent names.
+
+### Enricher notes from first full run (servicing, 15 capabilities, 2026-07-13)
+1. Permit read-only `git log` explicitly — history.md guidance implies mining evolution, but "do not run git commands" forbids it.
+2. Say where evidence citations belong per file type (intent/behavior avoid implementation detail, yet evidence-only demands citable paths).
+3. Parallel enrichers in one worktree can't self-verify scope via git status — the orchestrator should own scope checks per batch.
+4. Bless evidence-based correction of wrong bootstrap claims (14+ found in one run) and require a correction note.
+5. Standard resolution for boundary-straddling code: document the seam in dependencies.md — agents converged on this independently.
+6. Add a channel for source-doc defects found during enrichment (stale diagrams/docs) — currently parked in ai-context pitfall notes.
