@@ -743,3 +743,17 @@ Updated Capability Graph
 The objective of CDD is not simply to automate software development.
 
 The objective is to build a persistent understanding of the system that compounds over time, allowing both humans and AI agents to spend less time reconstructing context and more time delivering value.
+
+---
+
+## GLADE packaging notes
+
+Instruction fixes found in the first real use of these skills (packaging them for Claude Code under GLADE). Each one is a gap or conflict in the skill instructions themselves, recorded here until the skill bodies are revised:
+
+1. **manifest.json belongs to the bootstrapper alone.** Both project-discovery and bootstrapper currently claim `project-context/manifest.json` as an output. Two writers for one file means the second run silently overwrites the first. The bootstrapper should own it; project-discovery should write only `project.md`.
+
+2. **historical-prd-discovery needs a documented fallback for repos with zero PRDs/ADRs.** Many real repos have no historical product artifacts at all. When none exist, the skill should fall back to mining commit-message themes (frequency of recurring business terms across commit history) and clearly label the resulting intent catalog as commit-derived, not PRD-derived, so downstream agents know the confidence level.
+
+3. **repository-inventory endpoint granularity is controller-level.** The skill should state explicitly that API endpoints are inventoried at the controller (or router/module) level, not per-route. Per-route inventories balloon on large services and duplicate what the source itself expresses better.
+
+4. **Capability directory slug rule should be explicit.** Capability directories follow `CAP-NNN-lowercase-hyphen` (zero-padded three-digit number, then a lowercase hyphenated slug, e.g. `CAP-007-payment-processing`). The bootstrapper body shows `CAP-001-...` by example only; the rule should be stated so independently bootstrapped repos produce consistent names.
