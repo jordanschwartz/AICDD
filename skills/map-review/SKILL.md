@@ -134,14 +134,28 @@ never-opened surface is where the findings are. Drive by the coverage ledger.
 
 ## Boundary-assumption ledger (required output)
 
-Many guarantees are really "we trust another system to do X." List every guarantee whose
-truth depends on code outside this repo (a downstream idempotency key, another service's
-dedup, an external contract). For each: cite where this repo relies on it, and tag
-**VERIFIABLE-HERE** / **TRUSTED-NOT-VERIFIABLE** (name the missing evidence) /
-**CONTRADICTED** (this repo's own code undercuts it). Flag any guarantee the map states
-as "we enforce X" when it's actually borrowed from downstream — that's an ownership
-over-claim. (Pilot: a refund idempotency key the map leaned on wasn't even in the
-downstream service's published API contract.)
+**Capability boundaries stop at system boundaries.** A guarantee this system makes can
+only cover what this system does. Where a guarantee's truth actually lives in another
+system (a downstream idempotency key, another service's dedup, an external contract), you
+can *glean from the contract* what this system expects — but you can NOT guarantee the
+other system honors it, and you do NOT reach into the other system to check. Crossing the
+boundary to verify defeats the boundary the map exists to draw.
+
+List every guarantee that depends on another system. For each, split it at the boundary:
+- **This system's half** — cite it; it's VERIFIABLE-HERE (e.g. "we send a deterministic
+  idempotency key on every call").
+- **The other system's half** — mark it **CONTRACT-DERIVED, NOT GUARANTEED**. This is a
+  permanent boundary marker, not a TODO to go verify (e.g. "…so Payments dedupes the
+  charge" — expected by contract, never guaranteed by us).
+- **CONTRADICTED** — only when this system's OWN code undercuts even the contract-based
+  expectation (e.g. it sends a *fresh random* key per call, so it couldn't dedupe even if
+  the downstream honored it). That's a real finding, inside our boundary.
+
+Flag any guarantee the map states as "we enforce X" when X is really the other system's
+job — that's an ownership over-claim, and the fix is to re-word it to what we actually
+control, not to go verify the other system. (Pilot: a refund idempotency key the map
+leaned on wasn't even in the downstream service's published contract — so our half is
+"we send a key," and the dedupe is contract-derived at best.)
 
 # Part 2 — Independent second review (re-derive, don't audit)
 
