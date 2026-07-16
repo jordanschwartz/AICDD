@@ -211,8 +211,13 @@ the gap list. No single net is complete; gaps hide where they disagree.
 - **Domain-reference checklist** — what a system of this *type* is expected to do.
   Absent-but-plausible = investigate. **This net over-generates — tag its items
   "needs human scope call," never assert them as gaps.**
-- **Human interview** — the one net you cannot run: "what does this system do that
-  isn't on the list?" Produce the questions for a human to close it.
+- **Human interview** — the one net you cannot run yourself: "what does this system do
+  that isn't on the list?" Produce the questions for a human. **Treat its answers as
+  weak-confidence LEADS, not evidence** — people forget, disagree, and describe the same
+  thing differently; anecdote carries low confidence. So run it *last*, after
+  code-derived confidence is as high as it will go, and **verify anything it surfaces
+  against the code before the map states it.** The interview points you where to look;
+  the code decides.
 
 **Nets are not equal in yield** (measured in a pilot): the code-surface
 route/endpoint/controller inventory and the change-history net paid the most; the data
