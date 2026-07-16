@@ -63,9 +63,15 @@ guarantee*, not a flat "CODE-VERIFIED."
 - **Author-asserted ≠ verified.** A map's "CODE-VERIFIED" is *relayed* until a
   second reader re-opens the code. Distinguish VERIFIED-BY-YOU from INFERRED, always.
 - **Never assume — tag every guarantee by evidence strength.** Strongest first:
-  **TEST-PROVEN** (a test asserts it) > **TWO-READS** (two independent competent
-  reads agree) > **ONE-READ** > **ASSUMED**. Only ASSUMED claims are stated without
-  proof, and each must name *why* it couldn't be verified (the missing evidence).
+  **TEST-PROVEN** > **TWO-READS** (two independent competent reads agree) >
+  **ONE-READ** > **ASSUMED**. Only ASSUMED claims are stated without proof, and each
+  must name *why* it couldn't be verified (the missing evidence).
+- **TEST-PROVEN means the assertion body proves it — not the test's name.** Open the
+  test and read what it actually asserts. A test named `HaveIdempotentRefundResponse`
+  that only checks two calls return the same id does NOT prove "exactly one processor
+  call and one row" — it never counts either. A tag the test doesn't earn is itself a
+  finding: downgrade it. (A real pilot found a TEST-PROVEN guarantee whose test failed
+  this check, and downgraded it on the second review.)
 - **No running instance — ever.** Verify from source and the **test suite** only.
   Do not stand up or hit a live/shared instance to "check" something — it drags in
   dependencies and can pollute a data environment. What neither static reading nor a
@@ -94,12 +100,49 @@ Try to DISPROVE each capability against the code. Three attacks:
 Verdict per capability: GROUNDED / PARTIALLY-GROUNDED / OVERSTATED / CONTRADICTED,
 each with cited evidence and an evidence tag.
 
-# Part 2 — Second read
+# Part 2 — Independent second review (re-derive, don't audit)
 
-Every load-bearing guarantee is re-opened by a **second competent reader** who is not
-the map's author. "CODE-VERIFIED" earns its name only when someone other than the
-author has re-read the code. **Two independent competent reads that agree is the
-bar** — a third pass is not required.
+Every load-bearing guarantee is re-opened by a **second competent reviewer who is not
+the map's author** — and who works from the code, not from the first pass's report.
+The value is in the independence: a reviewer who audits the first pass inherits its
+blind spots. Give the second reviewer the map and the first pass's findings, then have
+them do three things (a pilot measured each producing real, distinct findings):
+
+- **Re-derive the verdicts from source** rather than trusting them; where they
+  disagree with the first pass, say so with a citation. Disagreement runs both ways —
+  the pilot's second reviewer *upgraded* four guarantees the first pass had left
+  unverified AND *downgraded* one it had over-tagged.
+- **Resolve every RELAYED / unread item the first pass left open.** A first pass that
+  admits "handler not opened / assertion body not read" has *not* verified those; an
+  unresolved RELAYED tag is not a pass. The second reviewer opens them and grades them.
+- **Attack the strongest GROUNDED claims, not just the weak ones.** The highest-value
+  finding is a guarantee everyone marked solid that you can still break with a specific
+  input or path. The pilot's second review found two load-bearing behaviors this way —
+  a schedule that advanced even on failed payments, and an asymmetric anti-leak
+  fallback — that both the first pass and the map had missed entirely.
+
+"CODE-VERIFIED" earns its name only when a second, independent reviewer has re-read the
+code and agrees. But a three-pass pilot over one service showed the trust bar is about
+**coverage, not pass count**:
+
+- **A TWO-READS tag requires two readers who each opened the *enforcing code*** — not
+  the interface, the constructor, or the test's name. In the pilot a guarantee carried
+  a TWO-READS tag while two passes had read only its interface; the third pass opened
+  the handler and found it did the *opposite* of what the guarantee claimed. Two reads
+  of the wrong lines is zero reads. Track the read-count per guarantee against the code
+  that actually enforces it.
+- **Review until every load-bearing guarantee has two genuine independent opens and
+  every completeness net is covered — however many passes that takes.** Passes are not
+  the unit; covered guarantees are. Three passes that all skip a handler leave it
+  unverified; one pass that opens it verifies it.
+- **A further pass helps only where it steers at surface the earlier passes never
+  touched.** The pilot's third pass found nothing new in the heavily-worked area, and
+  two material defects — a missing capability and a contradicted guarantee — in
+  capabilities no prior pass had opened. Point extra review at the *under-covered*
+  surface, not at re-reading what's already been read twice.
+
+(This is what one three-pass pilot showed, not a proven universal — treat it as the
+working model and sharpen it as more maps get reviewed this way.)
 
 # Part 3 — Completeness by triangulation (find the MISSING capabilities)
 
