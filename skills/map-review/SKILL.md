@@ -147,6 +147,13 @@ List every guarantee that depends on another system. For each, split it at the b
 - **The other system's half** — mark it **CONTRACT-DERIVED, NOT GUARANTEED**. This is a
   permanent boundary marker, not a TODO to go verify (e.g. "…so Payments dedupes the
   charge" — expected by contract, never guaranteed by us).
+  - *Contract-derived has degrees — say which.* If the other system's PUBLISHED contract
+    declares the behavior (its API schema carries the idempotency-key field), you can at
+    least glean it supports it. If your code sends something the contract does NOT declare
+    (a field you add locally because it's absent from their schema), you can't even glean
+    support — that's weaker than contract-derived, and the gap is itself the finding.
+    (Pilot: the main charge's idempotency key IS in Payments' schema; the refund's is NOT
+    — the service adds it locally, so the refund backstop is a hope, not a contract.)
 - **CONTRADICTED** — only when this system's OWN code undercuts even the contract-based
   expectation (e.g. it sends a *fresh random* key per call, so it couldn't dedupe even if
   the downstream honored it). That's a real finding, inside our boundary.
