@@ -132,8 +132,16 @@ disagree are where a missing capability hides:
   gap: a missing capability, or one planned-but-unbuilt (say which).
 * **Data model** — every persistent entity belongs to a capability; an orphan is a
   gap or dead data.
+* **Change history** — `git log` for bug-fix commits and the ticket/PR trail. A fix
+  often *adds* a guarantee because something once broke; the commit is the evidence,
+  and it names behaviors a static read of current code doesn't suggest.
 * **Domain expectation** — what a system of this *type* is normally expected to do;
   absent-but-plausible is a prompt to investigate, not a conclusion.
+
+**The sources are not equal in yield** (measured in a pilot): the code-surface
+route/endpoint/controller inventory and the change-history net pay the most; a
+config-file source is silent when config lives in a secrets store rather than the repo —
+and that silence is itself information about the environment, not a dead end.
 
 Keep a **coverage ledger**: every surface item maps to exactly one capability.
 Unmapped surface is a gap to resolve, not to ignore. You cannot prove completeness
