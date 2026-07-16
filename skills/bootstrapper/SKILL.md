@@ -75,7 +75,9 @@ Future humans and AI agents should begin work from this knowledge instead of rec
 
 # Repository Reflection
 
-Before discovering capabilities, reflect on the repository as a whole.
+Before discovering capabilities, reflect on the repository as a whole. A solution
+may span multiple repositories (e.g. a backend and its frontend) — reflect across
+**all** of them, because a single business capability is often split across repos.
 Review intent-catalog.json to understand recurring business concepts,
 historical product evolution, and common business terminology before
 performing Capability Discovery.
@@ -113,6 +115,29 @@ Use evidence from:
 Capabilities should represent what the business does.
 
 Not how it is implemented.
+
+---
+
+# Completeness — Triangulate, Don't Infer From One Source
+
+The capabilities you can only see from one angle are the ones you miss. Derive the
+capability set from **independent sources** and reconcile them — the places they
+disagree are where a missing capability hides:
+
+* **Code surface** — endpoints, event/message consumers, jobs, entities.
+* **Tests** — unit and acceptance tests spell out behavior in executable form;
+  acceptance-test scenarios especially name business capabilities directly.
+* **Emitted/consumed events** — each implies a behavior.
+* **Intent corpus** — intent-catalog.json / PRDs. Intent with no capability is a
+  gap: a missing capability, or one planned-but-unbuilt (say which).
+* **Data model** — every persistent entity belongs to a capability; an orphan is a
+  gap or dead data.
+* **Domain expectation** — what a system of this *type* is normally expected to do;
+  absent-but-plausible is a prompt to investigate, not a conclusion.
+
+Keep a **coverage ledger**: every surface item maps to exactly one capability.
+Unmapped surface is a gap to resolve, not to ignore. You cannot prove completeness
+by reading your own output — only by deriving it from these sources and reconciling.
 
 ---
 
@@ -417,6 +442,32 @@ Capture information useful for future AI planning and implementation:
 * Existing patterns
 
 AI Context exists to reduce future context reconstruction.
+
+---
+
+# Evidence Discipline — Ground Every Claim
+
+The graph is only worth what its claims are worth. A guarantee that merely *reads*
+plausibly but that the code doesn't actually enforce is worse than none — it will be
+trusted.
+
+* **Cite the code for every stated guarantee.** In `behavior.md` / `verification.md`,
+  a business rule or guarantee ("prevents X", "exactly once", "defaults to Y") must
+  point at the code that enforces it. If you can't find that code, don't state it as
+  fact.
+* **Field-exists is not populated.** A property on a type is not proof the value is
+  set on the path in question — trace it.
+* **Tag each guarantee by evidence strength:** TEST-PROVEN (a test asserts it) >
+  TWO-READS (two independent reads agree) > ONE-READ > ASSUMED. Carry the tag in the
+  file; a flat "CODE-VERIFIED" hides how much to trust the claim.
+* **What you can't ground stays ASSUMED and names the missing evidence** (why it
+  couldn't be verified — e.g. a runtime config value). Never round an assumption up
+  to a fact.
+* Verify from source and the test suite; do not stand up a running instance to check
+  a claim.
+
+A graph built to this bar needs far less correction downstream — and it is exactly
+what the `map-review` verification stage will hold it to.
 
 ---
 
