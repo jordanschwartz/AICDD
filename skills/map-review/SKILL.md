@@ -43,8 +43,12 @@ update. Pin every check to the repo's current sha and record it.
 
 One report (e.g. `map-review/<date>.md`), for a human to adjudicate:
 
-- **Per-capability verdicts** (Part 1/2), each carrying an **evidence tag** (below).
-- **Coverage ledger + gap list** (Part 3), each gap tagged.
+- **Per-capability verdicts** (Part 1/2), each carrying an **evidence tag** (below)
+  and the **sha you verified it at**. A capability that passes clean is *eligible*
+  for its `lastVerifiedSha` watermark to advance to that sha; a flagged one is not.
+- **Coverage ledger + gap list** (Part 3), each gap tagged. If a persisted
+  `coverage-ledger.json` exists, reconcile against it and report its diffs; if not,
+  produce one.
 - **Boundary-assumption ledger** (Part 1) — every guarantee that depends on another
   system, tagged verifiable-here / trusted-not-verifiable / contradicted.
 - **Human-interview questions** — the one net you cannot run yourself.
@@ -52,7 +56,9 @@ One report (e.g. `map-review/<date>.md`), for a human to adjudicate:
   likely-missing capabilities.
 
 The evidence tags flow back into the map so it carries *how much to trust each
-guarantee*, not a flat "CODE-VERIFIED."
+guarantee*, not a flat "CODE-VERIFIED." **You stay read-only on the map** — you
+*report* which capabilities are clean-at-which-sha; the watermark advance and any
+correction are written by `steward`/`map-reconcile` or a human, never here.
 
 ---
 

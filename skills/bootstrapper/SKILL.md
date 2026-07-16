@@ -49,6 +49,8 @@ project-context/
 
     capabilities.json
 
+    coverage-ledger.json
+
     capabilities/
 
         CAP-001-...
@@ -286,6 +288,8 @@ Each capability should contain:
 * summary
 * domain
 * keywords
+* lastVerifiedSha — the commit the capability's guarantees were last verified at
+  (the freshness watermark; see below)
 
 Example:
 
@@ -300,11 +304,43 @@ Example:
     "renewal",
     "billing",
     "recurring"
-  ]
+  ],
+  "lastVerifiedSha": "<sha this capability was built/verified at>"
 }
 ```
 
 The capability index serves as the primary entry point for Capability Discovery.
+
+---
+
+# coverage-ledger.json & the freshness watermark
+
+Persist two artifacts that let the map stay honest as code changes:
+
+* **`coverage-ledger.json`** — the completeness triangulation above, written down: a
+  map from every surface item (endpoint, event consumer, job, entity, …) to the
+  capability that owns it. Include items that map to no capability, marked as gaps.
+  This is the code→capability index that a later reconcile pass reads to answer "a
+  file changed — which capability does it belong to?"
+
+  ```json
+  {
+    "generatedAtSha": "<sha>",
+    "entries": [
+      { "item": "src/.../CreateSubscriptionController.cs", "kind": "endpoint", "capability": "CAP-001" },
+      { "item": "src/.../RenewalJob.cs", "kind": "job", "capability": "CAP-001" },
+      { "item": "src/.../LegacyImport.cs", "kind": "entity", "capability": null, "note": "unmapped — possible gap" }
+    ]
+  }
+  ```
+
+* **`lastVerifiedSha`** (per capability, above) — the commit its guarantees were last
+  verified at. Set it to the build sha for every capability you create.
+
+Together these are the substrate for keeping the map fresh: a change diffed against a
+capability's `lastVerifiedSha`, resolved to that capability through the ledger, is
+how drift is detected and re-verification is scoped. Keep the ledger and the
+watermarks accurate — downstream freshness enforcement depends on them.
 
 ---
 
