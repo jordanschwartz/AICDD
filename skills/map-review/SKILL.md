@@ -45,6 +45,8 @@ One report (e.g. `map-review/<date>.md`), for a human to adjudicate:
 
 - **Per-capability verdicts** (Part 1/2), each carrying an **evidence tag** (below).
 - **Coverage ledger + gap list** (Part 3), each gap tagged.
+- **Boundary-assumption ledger** (Part 1) — every guarantee that depends on another
+  system, tagged verifiable-here / trusted-not-verifiable / contradicted.
 - **Human-interview questions** — the one net you cannot run yourself.
 - Lead with the ranked risks: CONTRADICTED/OVERSTATED guarantees first, then
   likely-missing capabilities.
@@ -64,14 +66,22 @@ guarantee*, not a flat "CODE-VERIFIED."
   second reader re-opens the code. Distinguish VERIFIED-BY-YOU from INFERRED, always.
 - **Never assume — tag every guarantee by evidence strength.** Strongest first:
   **TEST-PROVEN** > **TWO-READS** (two independent competent reads agree) >
-  **ONE-READ** > **ASSUMED**. Only ASSUMED claims are stated without proof, and each
-  must name *why* it couldn't be verified (the missing evidence).
-- **TEST-PROVEN means the assertion body proves it — not the test's name.** Open the
-  test and read what it actually asserts. A test named `HaveIdempotentRefundResponse`
-  that only checks two calls return the same id does NOT prove "exactly one processor
-  call and one row" — it never counts either. A tag the test doesn't earn is itself a
-  finding: downgrade it. (A real pilot found a TEST-PROVEN guarantee whose test failed
-  this check, and downgraded it on the second review.)
+  **ONE-READ** > **ASSUMED**. Only ASSUMED claims are stated without proof.
+- **TEST-PROVEN = a passing test whose assertion actually checks the claim.** Both parts
+  required. (a) *Passing* — if the repo gates merges on green tests, a test on the main
+  line is already known to pass; you do NOT need to re-run it, and running it proves
+  nothing the gate didn't. (b) *The assertion covers the claim* — open the test body and
+  read what it asserts. **A test is evidence only for what it asserts.** A test named
+  `HaveIdempotentRefundResponse` that only checks two calls return the same id is NOT
+  evidence for "exactly one processor call and one row" — it never counts either; it is
+  evidence for the *weaker* claim it does check ("the call is response-idempotent").
+  When a test doesn't cover the guarantee, **don't discard it — relabel it to the claim
+  it actually proves, and drop the original to ONE-READ/ASSUMED.** A tag the test doesn't
+  earn is itself a finding. (A pilot found exactly this and downgraded it on second read.)
+- **When you can't verify but believe it, disclose it in this shape:** "Based on the
+  code I read, X likely happens, but I could not verify it — I'd need [the specific
+  missing evidence, e.g. a test that exercises a duplicate delivery]." State the belief,
+  flag the gap, and name what would close it. Never round an ASSUMED up to verified.
 - **No running instance — ever.** Verify from source and the **test suite** only.
   Do not stand up or hit a live/shared instance to "check" something — it drags in
   dependencies and can pollute a data environment. What neither static reading nor a
@@ -99,6 +109,39 @@ Try to DISPROVE each capability against the code. Three attacks:
 
 Verdict per capability: GROUNDED / PARTIALLY-GROUNDED / OVERSTATED / CONTRADICTED,
 each with cited evidence and an evidence tag.
+
+## Standing lenses — run each across the WHOLE capability set
+
+Falsification is one lens (correctness). A battery pilot found that a few *distinct*
+lenses each catch a class of defect the others structurally miss — and, importantly,
+that adding more reviewers or a different *model* over already-covered code added almost
+nothing (the different-model pass found only what came from newly-opened files). The
+lever is a distinct lens over *uncovered* surface, not repetition. Run all of these:
+
+- **Correctness / falsify** — the three attacks above.
+- **Access control** (every capability touching money or PII) — does the authorization
+  bind the caller to *this* resource, or only to a broad role? Check scoping (per-account
+  vs per-tenant/subservicer), any system-user or MFA-skip bypass, and unbounded "flat"
+  read routes. (Pilot: an agent claim granted subservicer-WIDE account access; a flat
+  funding-source route had no account binding.)
+- **Cross-service boundary / contract** — produce the boundary-assumption ledger below.
+- **Concurrency** — read-then-write races with no unique-index backstop, at-least-once
+  redelivery with no consumer dedup, saga/compensation gaps, non-atomic multi-step
+  writes, fresh-per-call idempotency keys. Name the concrete interleaving that breaks it.
+
+A lens re-applied to already-covered code returns little; the same lens over
+never-opened surface is where the findings are. Drive by the coverage ledger.
+
+## Boundary-assumption ledger (required output)
+
+Many guarantees are really "we trust another system to do X." List every guarantee whose
+truth depends on code outside this repo (a downstream idempotency key, another service's
+dedup, an external contract). For each: cite where this repo relies on it, and tag
+**VERIFIABLE-HERE** / **TRUSTED-NOT-VERIFIABLE** (name the missing evidence) /
+**CONTRADICTED** (this repo's own code undercuts it). Flag any guarantee the map states
+as "we enforce X" when it's actually borrowed from downstream — that's an ownership
+over-claim. (Pilot: a refund idempotency key the map leaned on wasn't even in the
+downstream service's published API contract.)
 
 # Part 2 — Independent second review (re-derive, don't audit)
 
@@ -161,11 +204,22 @@ the gap list. No single net is complete; gaps hide where they disagree.
   gap (missing, or planned-but-unbuilt) — this net catches what code surface can't.
 - **Data model** — every persistent entity/table belongs to a capability; orphans =
   a gap (or dead data — say which).
+- **Change history** — `git log` for bug-fix commits and the ticket/PR trail. A fix
+  often *adds* a guarantee because something once broke ("reject a cash-out during the
+  ownership cooling window," added after an incident); the commit is the evidence. This
+  net finds incident-born guarantees a static read of current code doesn't suggest.
 - **Domain-reference checklist** — what a system of this *type* is expected to do.
   Absent-but-plausible = investigate. **This net over-generates — tag its items
   "needs human scope call," never assert them as gaps.**
 - **Human interview** — the one net you cannot run: "what does this system do that
   isn't on the list?" Produce the questions for a human to close it.
+
+**Nets are not equal in yield** (measured in a pilot): the code-surface
+route/endpoint/controller inventory and the change-history net paid the most; the data
+model and events were solid; a config-file net returned nothing where config lived in a
+secrets store rather than the repo. Run them all, but spend effort where it pays — and
+treat a net's silence as information (config-in-secrets is itself a finding about the
+environment, and confirms an ASSUMED caveat rather than closing it).
 
 Keep an explicit **coverage ledger**: every surface item → exactly one capability.
 Unassigned = gap; double-assigned = a carving problem. Tag each gap:
