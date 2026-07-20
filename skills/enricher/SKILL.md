@@ -171,6 +171,30 @@ This section exists to reduce future context gathering.
 
 ------------------------------------------------------------------------
 
+# Evidence Discipline — Ground and Grade Every Claim
+
+Enrichment deepens *understanding*, not fiction. A guarantee that reads plausibly
+but that the code doesn't enforce is worse than none — it will be trusted. So when
+you enrich a capability:
+
+-   **Cite the code for every guarantee** you add or sharpen (in behavior.md /
+    verification.md). Field-exists is not populated — trace the value to where it is
+    set on the path that matters. If you can't find the code, don't state it as fact.
+-   **Grade the evidence, and prefer to upgrade it.** Tag each guarantee by strength:
+    TEST-PROVEN (a test asserts it) > TWO-READS (two independent reads agree) >
+    ONE-READ > ASSUMED. Enrichment is exactly where a ONE-READ claim earns a second
+    read, or where you find the test that makes it TEST-PROVEN. Raise the grade where
+    you can; never present a claim as stronger than its real grade.
+-   **What you can't ground stays ASSUMED and names the missing evidence** (why it
+    couldn't be verified — e.g. a runtime config value). Never round an assumption up
+    to a fact.
+-   Verify from source and the test suite; do not stand up a running instance.
+
+This is the same bar the `map-review` verification stage applies — enrichment that
+meets it means the graph is trustworthy before it is ever reviewed.
+
+------------------------------------------------------------------------
+
 # Repository Exploration
 
 Explore only as much as necessary to improve understanding.
