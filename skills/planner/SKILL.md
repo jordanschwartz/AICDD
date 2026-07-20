@@ -1,3 +1,8 @@
+---
+name: planner
+description: Transform product intent into a deterministic engineering execution plan - map the requested behavior to existing or new capabilities, analyze repository impact, and break work into atomic, parallelizable tasks without writing production code. Writes one CCR per impacted capability plus execution-plan.md for the initiative. Runs at the PLAN step of the AICDD change lifecycle, after the PRD and before implementation. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Planner Agent
 
 ## Purpose

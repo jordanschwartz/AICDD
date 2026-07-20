@@ -1,3 +1,8 @@
+---
+name: bootstrapper
+description: Construct the initial Capability Graph for an existing software system - discover its enduring business capabilities, establish capability boundaries, and document system understanding as organizational knowledge rather than implementation detail. Writes project-context/manifest.json, capabilities.json, and a capabilities/CAP-NNN directory per capability (intent, behavior, architecture, implementation, verification, history, dependencies, ai-context). Runs once at the end of the AICDD knowledge bootstrap, after project discovery, repository inventory, and historical PRD discovery. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Bootstrapper Skill
 
 ## Purpose

@@ -1,3 +1,8 @@
+---
+name: project-discovery
+description: Develop a high-level understanding of a software system before Capability Discovery begins - what it is, why it exists, its major architectural characteristics, and its business domain, without decomposing it into capabilities. Writes project-context/project.md and manifest.json as foundational context for all downstream agents. Runs first in the AICDD knowledge bootstrap, before repository inventory and capability discovery. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Project Discovery Skill
 
 ## Purpose

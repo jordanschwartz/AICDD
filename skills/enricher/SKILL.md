@@ -1,3 +1,8 @@
+---
+name: enricher
+description: Improve the quality and completeness of an existing Capability Graph - deepen persistent system understanding without changing system behavior and without creating, removing, or renaming capabilities. Updates existing capability artifacts under project-context/ in place so future agents need less repository exploration. Runs after the bootstrapper has built the initial graph, whenever the graph needs enrichment. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Enricher Skill
 
 ## Purpose

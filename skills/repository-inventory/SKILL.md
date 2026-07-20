@@ -1,3 +1,8 @@
+---
+name: repository-inventory
+description: Create a structured inventory of the repository - a searchable map of what exists (directories, source, configuration, build and infrastructure files, APIs, database schema, tests, docs) without explaining why it exists or how it behaves. Writes project-context/repository-inventory.md as a navigation aid for future AI agents. Runs during the AICDD knowledge bootstrap, alongside project discovery and before Capability Discovery. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Repository Inventory Skill
 
 ## Purpose

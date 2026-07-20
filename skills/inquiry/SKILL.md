@@ -1,3 +1,8 @@
+---
+name: inquiry
+description: Help a user understand the current system before defining a change - answer what is true today about existing capabilities, behavior, business rules, constraints, and gaps. Treats the Capability Graph under project-context/ as the primary source of understanding, exploring the repository only when persistent knowledge is insufficient; produces answers, not artifacts. Runs at the INQUIRE step, first in the AICDD change lifecycle, before the PRD is written. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Capability Inquiry Skill
 
 ## Purpose

@@ -1,3 +1,8 @@
+---
+name: reviewer
+description: Validate implementation against planning intent - check capability mapping, CCR compliance, task completion, behavioral correctness, architectural consistency, test coverage, and regression risk. Produces review-report.md as analysis for humans, who remain responsible for approval. Runs at the VERIFY step of the AICDD change lifecycle, after implementation and before knowledge stewardship. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Reviewer Agent
 
 ## Purpose

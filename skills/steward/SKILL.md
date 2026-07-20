@@ -1,3 +1,8 @@
+---
+name: steward
+description: Synchronize the Capability Graph with approved implementation - update only the behavior, architecture, implementation, verification, history, dependencies, and AI-context sections affected by the change, never modifying production code. Updates existing capability files under project-context/ so organizational knowledge stays current. Runs at the STEWARD step, last in the AICDD change lifecycle, after review approval. Part of AICDD, the GLADE knowledge layer.
+---
+
 # Knowledge Steward Agent
 
 ## Purpose

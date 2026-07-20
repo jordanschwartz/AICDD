@@ -743,3 +743,33 @@ Updated Capability Graph
 The objective of CDD is not simply to automate software development.
 
 The objective is to build a persistent understanding of the system that compounds over time, allowing both humans and AI agents to spend less time reconstructing context and more time delivering value.
+
+---
+
+## GLADE packaging notes
+
+Instruction fixes found in the first real use of these skills (packaging them for Claude Code under GLADE). Each one is a gap or conflict in the skill instructions themselves, recorded here until the skill bodies are revised:
+
+1. **manifest.json belongs to the bootstrapper alone.** Both project-discovery and bootstrapper currently claim `project-context/manifest.json` as an output. Two writers for one file means the second run silently overwrites the first. The bootstrapper should own it; project-discovery should write only `project.md`.
+
+2. **historical-prd-discovery needs a documented fallback for repos with zero PRDs/ADRs.** Many real repos have no historical product artifacts at all. When none exist, the skill should fall back to mining commit-message themes (frequency of recurring business terms across commit history) and clearly label the resulting intent catalog as commit-derived, not PRD-derived, so downstream agents know the confidence level.
+
+3. **repository-inventory endpoint granularity is controller-level.** The skill should state explicitly that API endpoints are inventoried at the controller (or router/module) level, not per-route. Per-route inventories balloon on large services and duplicate what the source itself expresses better.
+
+4. **Capability directory slug rule should be explicit.** Capability directories follow `CAP-NNN-lowercase-hyphen` (zero-padded three-digit number, then a lowercase hyphenated slug, e.g. `CAP-007-payment-processing`). The bootstrapper body shows `CAP-001-...` by example only; the rule should be stated so independently bootstrapped repos produce consistent names.
+
+### Enricher notes from first full run (servicing, 15 capabilities, 2026-07-13)
+1. Permit read-only `git log` explicitly — history.md guidance implies mining evolution, but "do not run git commands" forbids it.
+2. Say where evidence citations belong per file type (intent/behavior avoid implementation detail, yet evidence-only demands citable paths).
+3. Parallel enrichers in one worktree can't self-verify scope via git status — the orchestrator should own scope checks per batch.
+4. Bless evidence-based correction of wrong bootstrap claims (14+ found in one run) and require a correction note.
+5. Standard resolution for boundary-straddling code: document the seam in dependencies.md — agents converged on this independently.
+6. Add a channel for source-doc defects found during enrichment (stale diagrams/docs) — currently parked in ai-context pitfall notes.
+
+### Framework/plugin-mode notes (from building the DAF map, 2026-07-13)
+The bootstrap skills assume a business app and fight a framework/substrate map. A "plugin mode" should:
+1. Invert the capability rule — for a framework, "Command Pipeline / Message Delivery / Unit of Work" ARE the capabilities (the skills list these shapes as *bad* examples for business apps).
+2. Name capabilities by the guarantee a consumer relies on, not a business behavior.
+3. Allow implementation facts in the map — a framework's guarantee often IS an implementation fact (commit ordering, fail-open cache); load verification.md, keep intent.md thin.
+4. historical-prd-discovery has no PRDs for a framework — fall back to XML doc-comments (label "source") + commit history (label "commit-derived").
+5. intent-catalog.json is business-vocabulary shaped; repurpose for framework-contract concepts.
