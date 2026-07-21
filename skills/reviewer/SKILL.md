@@ -54,6 +54,20 @@ Do not modify capability ownership.
 
 ---
 
+# Two lenses: compliance and craft
+
+Everything above is the **compliance lens** — did the change build what the plan / CCR /
+hardened spec intended (capability mapping, obligations met, required tests present)? That is
+your job, and you own it.
+
+A second lens must also run: **craft** — is the code good by *this stack's* standards? Hand
+that to the repo's **stack plugin's code review** (a `*-dev` plugin's `code_reviews`), which
+carries the framework-specific checklist. Your review is not complete until both lenses have
+run — compliance (here) and the stack's craft review. Record in the report whether the
+stack's craft review ran; if the repo has no stack plugin, say so.
+
+---
+
 # review-report.md
 
 Produce:
