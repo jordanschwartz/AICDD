@@ -94,6 +94,23 @@ The execution plan should contain:
 
 ---
 
+# Framework Behavior Lives in the Stack's Map — Check It Before You Conclude
+
+The service's capability map describes *this service*. Framework and platform behavior —
+tenancy, authorization, idempotency, the unit-of-work/commit pipeline, base-class behavior —
+lives in the **stack plugin's own framework capability map** (e.g. `daf-dev`'s bundled map)
+and its auto-loaded guidance, not in the service's map or code. When you analyze impact,
+consult that map for anything the framework provides; do NOT plan to build what the framework
+already guarantees (a manual tenant filter, a hand-rolled idempotency check).
+
+Never assert a framework negative you didn't check. "The repo doesn't do X" is not "the
+framework doesn't do X." Before you write that a behavior is absent or must be added, check
+the stack map where it would live. Label what you know by its source — Verified (you read the
+source this turn), Relayed (a doc/summary/agent asserts it, unchecked), or Inferred (your own
+reasoning) — and never round up.
+
+---
+
 # Rules
 
 Do NOT:
