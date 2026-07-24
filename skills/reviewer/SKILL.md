@@ -68,6 +68,19 @@ stack's craft review ran; if the repo has no stack plugin, say so.
 
 ---
 
+# Framework Claims in Findings Must Be Checked Against the Stack's Map
+
+A finding that asserts the framework does or doesn't do something — "no tenant isolation
+here", "idempotency isn't handled" — is only valid if you checked where that behavior lives:
+the stack plugin's framework capability map (e.g. `daf-dev`'s bundled map) and its auto-loaded
+guidance, not just the service's code. Framework behavior won't appear in the service's code
+because the framework provides it; a missing-in-the-repo observation is not a missing-behavior
+finding. Label every finding by its evidence status — Verified (you read the enforcing source
+this turn), Relayed (unchecked, from a doc/summary/agent), or Inferred — and never raise a
+framework negative you couldn't verify as though it were confirmed.
+
+---
+
 # review-report.md
 
 Produce:

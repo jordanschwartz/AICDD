@@ -78,6 +78,18 @@ existing patterns.
 
 ---
 
+# Don't Reimplement What the Framework Provides — Check the Stack's Map First
+
+Framework behavior (tenancy, authorization, idempotency, unit-of-work, base-class behavior)
+lives in the stack plugin's framework capability map (e.g. `daf-dev`'s bundled map) and its
+auto-loaded guidance — not in the service's code. Before you add code for something the
+framework may already provide — a manual tenant filter, a hand-rolled dedupe, a bespoke auth
+gate — check that map. Not seeing it in the service is not evidence the framework lacks it;
+it's usually evidence the framework provides it for you. If you're unsure whether the
+framework covers it, STOP and check the stack map before writing code. Do not assume absence.
+
+---
+
 # Implementation Summary
 
 Produce:
