@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "aicdd",
+  "description": "AICDD — the Agentic Capability-Driven Delivery knowledge layer: stack- and company-agnostic skills for building/verifying a capability map and running the change lifecycle. Consumed by GLADE and any other ecosystem that wants the neutral method.",
+  "owner": {
+    "name": "Jordan Schwartz"
+  },
+  "plugins": [
+    {
+      "name": "aicdd",
+      "description": "The AICDD change-lifecycle + capability-map skills (inquiry, prd-writer, capability-author, planner, implementer, reviewer, steward, and the map build/verify/freshness skills).",
+      "source": "./plugins/aicdd",
+      "category": "development",
+      "keywords": ["aicdd", "capability-driven-delivery", "knowledge-layer", "change-lifecycle", "capability-graph"]
+    }
+  ]
+}

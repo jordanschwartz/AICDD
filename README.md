@@ -14,6 +14,22 @@ Every initiative begins from that knowledge model and ends by improving it.
 
 ---
 
+# Install (Claude Code plugin)
+
+AICDD ships as a plugin in this repo's own marketplace:
+
+```
+/plugin marketplace add https://github.com/jordanschwartz/AICDD
+/plugin install aicdd@aicdd
+```
+
+Skills are then available namespaced — `aicdd:inquiry`, `aicdd:prd-writer`,
+`aicdd:capability-author`, `aicdd:planner`, etc. GLADE wires this up automatically via
+`glade-setup` (it registers this marketplace and enables the plugin); you only add it by
+hand for standalone use.
+
+---
+
 # Core Philosophy
 
 Traditional software delivery revolves around **work artifacts**:
