@@ -1,6 +1,6 @@
 ---
 name: inquiry
-description: Help a user understand the current system before defining a change - answer what is true today about existing capabilities, behavior, business rules, constraints, and gaps. Treats the Capability Graph under project-context/ as the primary source of understanding, exploring the repository only when persistent knowledge is insufficient; produces answers, not artifacts. Runs at the INQUIRE step, first in the AICDD change lifecycle, before the PRD is written. Part of AICDD, the GLADE knowledge layer.
+description: Help a user understand the current system before defining a change - answer what is true today about existing capabilities, behavior, business rules, constraints, and gaps. Treats the Capability Graph under project-context/ as the primary source of understanding, exploring the repository only when persistent knowledge is insufficient; conversational during exploration, and at handoff to a PRD it persists one artifact — a Current-State Brief the PRD writer reads. Runs at the INQUIRE step, first in the AICDD change lifecycle, before the PRD is written. Part of AICDD, the GLADE knowledge layer.
 ---
 
 # Capability Inquiry Skill
@@ -250,7 +250,16 @@ Do not force a fixed template when a simple answer is sufficient.
 
 ## Current-State Brief
 
-When the user asks for a summary, brief, PRD preparation, or a formal artifact, produce a Current-State Brief.
+When the user asks for a summary or a formal artifact, produce a Current-State Brief using the
+structure below.
+
+**When the user is preparing to define a change (heading into a PRD), this brief is the
+handoff — persist it, don't just print it.** Agree the initiative slug with the user, then
+write the brief to `project-context/initiatives/<NNN-slug>/current-state-brief.md`. That exact
+file is what the PRD writer reads (its pre-flight STOPs if it's missing), so the understanding
+survives a session boundary between inquiry and the PRD, and a human can review the
+current-state before the PRD builds on it. For pure exploration that isn't heading to a PRD,
+keep it in the chat — don't create an initiative folder.
 
 Use this structure:
 

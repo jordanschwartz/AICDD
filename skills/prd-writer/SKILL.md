@@ -124,7 +124,8 @@ Before drafting, verify the inputs needed to write a grounded PRD.
 Check for:
 
 - The initiative directory (e.g. `project-context/initiatives/00X-<slug>/`)
-- `current-state-brief.md` inside the initiative directory
+- `current-state-brief.md` inside the initiative directory — inquiry persists this at
+  handoff (its Current-State Brief). Its absence means inquiry hasn't run for this initiative.
 
 If the current-state brief is missing:
 
