@@ -1,6 +1,6 @@
 ---
 name: historical-prd-discovery
-description: Analyze historical product artifacts - PRDs, feature specs, design docs, RFCs, ADRs, release notes, user stories - to extract recurring business concepts, terminology, intent, and product evolution rather than summarizing individual documents. Writes project-context/intent-catalog.json and historical-prd-summary.md for downstream Capability Discovery. Runs during the AICDD knowledge bootstrap, before the bootstrapper constructs the Capability Graph. Part of AICDD, the GLADE knowledge layer.
+description: Analyze historical product artifacts - PRDs, feature specs, design docs, RFCs, ADRs, release notes, user stories - to extract recurring business concepts, terminology, intent, and product evolution rather than summarizing individual documents. Gathers from the repo AND, when configured, a tracker (Jira epics/stories) and docs system (Confluence) via the available MCP, plus a commit-history fallback; every concept is tagged with its source. Writes project-context/intent-catalog.json and historical-prd-summary.md for downstream Capability Discovery. Runs during the AICDD knowledge bootstrap, before the bootstrapper constructs the Capability Graph. Part of AICDD, the GLADE knowledge layer.
 ---
 
 # Historical PRD Discovery Skill
@@ -37,6 +37,33 @@ limited to:
 -   Change Requests
 -   User Stories
 -   Functional Specifications
+
+------------------------------------------------------------------------
+
+# Where these artifacts live — sources (read-only)
+
+Do not assume the artifacts sit in the repo. Gather from every source available, in this
+order, and **fail soft** — a missing or unreachable source is a warning, never a stop:
+
+1.  **The repository** — `docs/`, design folders, ADR directories, release-note files,
+    READMEs. Always available.
+2.  **The configured tracker (Jira) and docs system (Confluence)** — *if*
+    `.claude/skills/_shared/<repo>.json` declares them (`tracker` / `docs` blocks: project
+    key, cloud id, space, parent page). Query them **read-only** via the available Atlassian
+    MCP:
+    -   **Jira** — the project's **epics and stories** (the intent-bearing types). Do NOT
+        pull bugs, chores, or tasks; that's noise. Read titles + descriptions and extract
+        *themes*, don't transcribe tickets.
+    -   **Confluence** — PRDs / design pages under the configured space / parent page.
+
+    If no tracker/docs is configured, or the MCP isn't available, skip these and say so
+    plainly. **Never write** to a tracker or docs system — this is a read-only harvest.
+3.  **Commit history — the fallback when little else exists.** If a repo has few or no
+    product docs, mine recurring business themes from commit messages. It is the weakest
+    source; tag everything from it `commit-derived`.
+
+Intent found only in the tracker/docs but not yet reflected in code is still cataloged —
+downstream (`map-review`) turns "intent with no capability" into a planned-but-unbuilt gap.
 
 ------------------------------------------------------------------------
 
@@ -126,7 +153,9 @@ Generate a machine-readable catalog containing:
 -   Summary
 -   Aliases
 -   Keywords
--   Referenced historical artifacts
+-   Referenced historical artifacts, **each tagged with its source** — `repo-doc`,
+    `jira`, `confluence`, or `commit-derived` — so downstream knows the provenance and
+    confidence (a `commit-derived` concept is a weaker signal than a `confluence` PRD).
 
 Example:
 
@@ -142,6 +171,11 @@ Example:
     "subscription",
     "renewal",
     "billing"
+  ],
+  "sources": [
+    "confluence:Billing PRD v2",
+    "jira:BILL-142 (epic)",
+    "repo-doc:docs/adr/0007-recurring-billing.md"
   ]
 }
 ```
