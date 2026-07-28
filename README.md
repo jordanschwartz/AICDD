@@ -212,6 +212,21 @@ At this point the repository contains a persistent Capability Graph that becomes
 
 ---
 
+# Keeping the Map Current
+
+The map is built once, then maintained. Four skills touch it — pick by intent:
+
+| You want to… | Run | What it does |
+|---|---|---|
+| **Re-check the map and bring it up to date** (code changed, or a scheduled check) | `/aicdd:map-refresh` | The default freshness tool. Two tiers — *incremental* (re-verify only what moved since each capability's watermark) and *full re-eval* (re-discover + red-team the whole map). Re-verifies guarantees and writes the map's freshness state. |
+| **Audit the map without changing it** (findings only — e.g. before trusting it) | `/aicdd:map-review` | Read-only. Adversarial "disprove it" pass + independent second read + a completeness hunt for missing capabilities. Produces findings for a human; changes nothing. |
+| **Deepen an accurate-but-thin map** | `/aicdd:enricher CAP-0XX …` | Improves quality/completeness of existing capabilities; never adds, removes, or renames one. |
+| **Record a change you just shipped** | `/aicdd:steward` | Syncs only the capability sections the change touched. The last step of the delivery lifecycle. |
+
+Rule of thumb: **refresh** to keep it true, **review** to audit without touching, **enricher** to deepen, **steward** to record a shipped change. `map-refresh` *writes*; `map-review` only *reports*.
+
+---
+
 # Delivering a Change
 
 ## Step 1 - Create an Initiative
