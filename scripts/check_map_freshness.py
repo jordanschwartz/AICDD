@@ -8,7 +8,7 @@ change AND neither its map directory nor its watermark was updated in the same
 change. In other words: you moved a capability's code without reconciling its map.
 
 This is the ENFORCEMENT half of map freshness — it detects and blocks drift; it
-does NOT fix it. The fix is the `map-reconcile` skill. Enforcement is a script
+does NOT fix it. The fix is the `map-refresh` skill. Enforcement is a script
 (the answer is computable) so it can't be forgotten and runs on every push.
 
 Reads the freshness substrate the bootstrapper/steward maintain:
@@ -96,7 +96,7 @@ def main():
         ok = False
         print(f"::error:: {cap} code changed but its map entry is stale "
               f"(lastVerifiedSha behind this change, map not updated). "
-              f"Run map-reconcile. Files: {', '.join(files[:5])}"
+              f"Run map-refresh. Files: {', '.join(files[:5])}"
               + (" …" if len(files) > 5 else ""))
     if unmapped:
         # Not a hard failure by default — a changed file under no capability is a

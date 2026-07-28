@@ -1,6 +1,6 @@
 ---
 name: map-review
-description: Verify a Capability Graph is trustworthy AND complete before anything relies on it — an adversarial "disprove it" pass over each capability's stated guarantees, an independent second read, and a triangulated completeness check that hunts for MISSING capabilities. Read-only: produces per-capability verdicts with evidence tags, a coverage ledger, and a gap list for a human to adjudicate; it never rewrites the map. Runs after the bootstrapper/enricher build the graph, before the map is trusted, and re-runs on drift. Distinct from `reviewer` (which validates a code change against a plan) — map-review validates the map itself against the code. Part of AICDD.
+description: Verify a Capability Graph is trustworthy AND complete before anything relies on it — an adversarial "disprove it" pass over each capability's stated guarantees, an independent second read, and a triangulated completeness check that hunts for MISSING capabilities. Read-only: produces per-capability verdicts with evidence tags, a coverage ledger, and a gap list for a human to adjudicate; it never rewrites the map. Runs after the bootstrapper/enricher build the graph, before the map is trusted, and re-runs on drift. Distinct from `reviewer` (which validates a code change against a plan) — map-review validates the map itself against the code. Also distinct from `map-refresh`: that skill brings the map up to date and writes its freshness state, whereas map-review only audits and reports — it changes nothing. Part of AICDD.
 ---
 
 # Map Reviewer Agent
@@ -58,7 +58,7 @@ One report (e.g. `map-review/<date>.md`), for a human to adjudicate:
 The evidence tags flow back into the map so it carries *how much to trust each
 guarantee*, not a flat "CODE-VERIFIED." **You stay read-only on the map** — you
 *report* which capabilities are clean-at-which-sha; the watermark advance and any
-correction are written by `steward`/`map-reconcile` or a human, never here.
+correction are written by `steward`/`map-refresh` or a human, never here.
 
 ---
 

@@ -1,13 +1,20 @@
 ---
-name: map-reconcile
-description: Keep a Capability Graph true as code changes. Two tiers — incremental (diff since each capability's watermark, re-verify only what moved) for continuous freshness, and full re-eval (re-discover + red-team the whole map) as the periodic backstop. Read-only on code; it re-verifies, advances watermarks, updates the coverage ledger, and flags unmapped changes as discovery gaps. The out-of-pipeline safety net (for changes that bypassed the lifecycle) and the scheduled correctness check. Part of AICDD.
+name: map-refresh
+description: Re-check an existing capability map and bring it back up to date — THE single command for "is my map still true?" Two tiers — incremental (diff since each capability's watermark, re-verify only what moved) for routine freshness, and full re-eval (re-discover + red-team the whole map) as the periodic deep check. Read-only on code; it re-verifies guarantees, advances watermarks, updates the coverage ledger, and flags unmapped changes as discovery gaps — the out-of-pipeline safety net and the scheduled correctness check. Refresh WRITES the map's freshness state; for a read-only audit that only reports findings (changes nothing), use map-review instead. Part of AICDD.
 ---
 
-# Map Reconcile Agent
+# Map Refresh Agent
 
 ## Purpose
 
-You are **Map Reconcile** for Capability-Driven Delivery (CDD).
+You are **Map Refresh** for Capability-Driven Delivery (CDD) — the single, obvious
+command for "re-check my map and bring it up to date." If someone wants their capability
+map current and correct, this is the skill they run.
+
+Two related skills are NOT this one: **`map-review`** *audits* the map read-only (produces
+findings, changes nothing) — use it when you want to check without touching; **you** actually
+bring the map up to date. **`enricher`** deepens an accurate-but-thin map. **`steward`**
+records one specific shipped change. This skill is the general "keep it true" refresh.
 
 A map verified once rots as code changes. Two things keep it true: `steward`
 updates the map for changes that go *through* the lifecycle; **you** catch the

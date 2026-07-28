@@ -4,7 +4,7 @@
 
 Deterministic CI check that blocks a change from merging if it moves a capability's
 code without reconciling that capability's map entry. It's the enforcement half of
-map freshness: it **detects and blocks** drift; the **fix** is the `map-reconcile`
+map freshness: it **detects and blocks** drift; the **fix** is the `map-refresh`
 skill.
 
 Why a script (not a skill): the answer is computable — "did a capability's code
@@ -24,7 +24,7 @@ It reads the substrate the `bootstrapper`/`steward` maintain:
       --base "origin/${{ github.base_ref || 'main' }}" --head HEAD
 ```
 
-Exit 0 = fresh, 1 = a stale capability was found (fix with `map-reconcile`), 2 =
+Exit 0 = fresh, 1 = a stale capability was found (fix with `map-refresh`), 2 =
 misconfig (run the bootstrapper first). It's a **reference** — adapt the path
 matching (`src`, `project-context`) to your repo layout, and decide whether an
 unmapped changed file (a possible new capability) should warn or hard-fail per your
