@@ -24,8 +24,8 @@ AICDD ships as a plugin in this repo's own marketplace:
 ```
 
 Skills are then available namespaced — `aicdd:inquiry`, `aicdd:prd-writer`,
-`aicdd:capability-author`, `aicdd:planner`, etc. GLADE wires this up automatically via
-`glade-setup` (it registers this marketplace and enables the plugin); you only add it by
+`aicdd:capability-author`, `aicdd:planner`, etc. CDD wires this up automatically via
+`CDD-setup` (it registers this marketplace and enables the plugin); you only add it by
 hand for standalone use.
 
 The step-by-step commands below are shown bare (`/inquiry`) for brevity — with the plugin
@@ -718,7 +718,7 @@ Does not plan the change.
 
 ## Capability Author
 
-Performs Capability Discovery and authors one CCR per impacted capability — *what each capability must become*. Runs after the PRD (and, when a consumer like GLADE inserts a spec-hardening step, after the spec is hardened) and before the Planner. Does not decompose work or write code.
+Performs Capability Discovery and authors one CCR per impacted capability — *what each capability must become*. Runs after the PRD (and, when a consumer like CDD inserts a spec-hardening step, after the spec is hardened) and before the Planner. Does not decompose work or write code.
 
 ---
 
@@ -817,9 +817,9 @@ The objective is to build a persistent understanding of the system that compound
 
 ---
 
-## GLADE packaging notes
+## CDD packaging notes
 
-Instruction fixes found in the first real use of these skills (packaging them for Claude Code under GLADE). Each one is a gap or conflict in the skill instructions themselves, recorded here until the skill bodies are revised:
+Instruction fixes found in the first real use of these skills (packaging them for Claude Code under CDD). Each one is a gap or conflict in the skill instructions themselves, recorded here until the skill bodies are revised:
 
 1. **manifest.json belongs to the bootstrapper alone.** Both project-discovery and bootstrapper currently claim `project-context/manifest.json` as an output. Two writers for one file means the second run silently overwrites the first. The bootstrapper should own it; project-discovery should write only `project.md`.
 
