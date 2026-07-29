@@ -1,6 +1,6 @@
 ---
 name: capability-author
-description: Map a hardened spec (or PRD) to the capability graph and author one Capability Change Request (CCR) per impacted capability — what each capability must become. Performs Capability Discovery (extend existing vs. new); does NOT decompose work into tasks or write code. Writes CCR files. Runs at the AUTHOR-CAPABILITY-CHANGES step of the change lifecycle, after the spec is hardened and before the planner. Part of AICDD, the GLADE knowledge layer.
+description: Map a hardened spec (or PRD) to the capability graph and author one Capability Change Request (CCR) per impacted capability — what each capability must become. Performs Capability Discovery (extend existing vs. new); does NOT decompose work into tasks or write code. Tags each CCR with the plain-language acceptance criteria it delivers, so a non-engineer can confirm intent at this gate. Writes CCR files. Runs at the AUTHOR-CAPABILITY-CHANGES step of the change lifecycle, after the spec is hardened and before the planner. Part of AICDD, the GLADE knowledge layer.
 ---
 
 # Capability Author
@@ -62,6 +62,14 @@ that prove them. Carry the **reasoning**, not just the *what* — the Planner in
 as its only context, so a thin CCR makes a poor plan. Map each required test from the hardened
 spec to the capability that owns it.
 
+**Tag each CCR with the acceptance criteria it delivers.** The hardened spec carries
+product-language acceptance criteria — plain "done right" statements, no class names, no code.
+For each CCR, list the acceptance criteria this capability change satisfies, quoted in their
+original plain language. This is what lets someone who isn't an engineer read a CCR and confirm
+it delivers the intent they signed off on — "here's the criterion, here's the capability change
+that satisfies it" — without wading through the technical body. Every acceptance criterion in
+the spec should land on at least one CCR; if one maps to none, that's a coverage gap — flag it.
+
 Write the CCR files where the flow expects them (per the initiative's convention).
 
 ---
@@ -82,6 +90,11 @@ negative you didn't check, and label what you know by source — Verified / Rela
 The CCRs are a review point distinct from the work plan: **are these the right capability
 changes, correctly stated?** Surface them for human sign-off before the Planner decomposes the
 work. Do not hand thin or unreviewed CCRs to the Planner.
+
+Because each CCR is tagged with the acceptance criteria it delivers, this gate is reviewable by
+someone who isn't an engineer — they read the plain-language criteria and confirm the intent,
+not the capability internals. Don't prescribe who clears the gate or how; just make sure the
+CCR is legible to a non-engineer.
 
 ---
 
