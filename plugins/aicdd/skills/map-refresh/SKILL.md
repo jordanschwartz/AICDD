@@ -95,16 +95,74 @@ major dependency/framework version changes.
 
 # Output
 
-A reconcile report: which capabilities were re-verified (and re-watermarked), which
-are FLAGGED (guarantee now fails — needs correction), and which changes mapped to no
-capability (discovery gaps). Substantive corrections and new capabilities are handed
-to `steward` / the Planner / a human — reconcile keeps freshness current and surfaces
-what a human must decide.
+You produce two things. First, the machine-readable freshness state you wrote:
+advanced watermarks, an updated coverage ledger, and a `mapRefreshFlag` on each
+capability you left un-advanced. Second — and this is the part that matters to the
+person who ran you — a **plain-English TODO list of what needs a human.** End every
+run with it.
+
+## The human TODO list — the last thing you produce, always
+
+This is how you hand off the work, and it is **not optional**. Everything you FLAGGED
+goes here, in one place.
+
+**Pull from BOTH flag locations.** Flags live in two different files: a stale or failed
+guarantee is written into that capability's `mapRefreshFlag`, and an unmapped surface
+item is written into `coverage-ledger.json`'s `gaps`. A person who reads only one file
+misses half the work. Gather both into this single list so nothing is hidden.
+
+**Write it for a busy human, not for an AI.** Plain, short sentences. No jargon — no
+"adjudicate," "substantive," "reconcile," "discovery gap," or other insider words. A
+teammate who just got back from two weeks off should read one item and know exactly what
+to do, without asking a follow-up question. If a sentence sounds like an AI wrote it,
+rewrite it the way you'd say it out loud to a coworker.
+
+Give each item these four parts:
+
+1. **What changed** — one sentence, naming the capability and the real-world thing in
+   normal words.
+   *"CAP-014's report rule — 'accounts on autopay that are behind never get called' — isn't
+   true anymore. A code change in July made it narrower."*
+2. **Why it matters** — one sentence on what goes wrong if it's left alone.
+   *"Until this is fixed, the map claims something the code stopped doing, so anyone
+   trusting the map is being misled."*
+3. **The call you need to make** — the actual decision, as a question with the options, and
+   your recommendation if you have one.
+   *"Is the new 'refire' tool part of Payment Processing (CAP-006), or its own new
+   capability? It reuses CAP-006's payment engine, so CAP-006 is the likely home."*
+4. **Do this** — the ready-to-run action, written so acting is *copy-paste or one word*,
+   never "compose a prompt yourself." Give the exact skill to run and the exact thing to
+   say, verbatim, as a block they can copy:
+   > Run `/aicdd:steward` with:
+   > `Adjudicate the refire gap and fold it into CAP-006.`
+
+Order the list most-important first (riskiest to leave undone at the top). If there is
+nothing for a human to act on, say that in one line — don't pad it.
+
+## Make acting as easy as possible
+
+Producing the list is half the job; the other half is guiding the human through it with the
+least effort on their end. After you present the list, **offer to walk them through the
+items one at a time** — show the item, offer to run its ready-made action, and on a simple
+"yes" (or a quick tweak) run it, then move to the next. The human's job should be to *decide
+and confirm*, not to write anything. Whatever form makes that easiest — a numbered TODO
+list, a one-at-a-time series of proposed actions, ready-to-paste prompts — use it. The test:
+could a tired person clear the whole list by reading and saying "yes" a few times?
+
+Substantive corrections and new capabilities are still made by `steward` / the Planner / a
+human, never here. This list — and walking them through it — is how you hand off that work
+with the least friction.
 
 # Hard rules
 
 - **Read-only on code; no running instance; no live data environment.**
 - Re-verify before advancing a watermark — a stale watermark is safer than a lying one.
 - Unmapped change = a flagged discovery gap, never a silent drop.
+- **A run isn't done until the human TODO list is on screen.** The freshness state you
+  wrote to files is not the deliverable; the person who ran you must see, in plain words,
+  every item that needs them — pulled from BOTH the per-capability flags and the ledger
+  gaps. Each item says what changed, why it matters, the call to make, and the exact
+  command to run next — and you then offer to run it for them, so clearing the list is
+  decide-and-confirm, not compose-a-prompt.
 - Tier 1 keeps the map *fresh*; only Tier 2 re-establishes *correctness* across
   unchanged capabilities. Run both.

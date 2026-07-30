@@ -1,6 +1,6 @@
 {
   "name": "aicdd",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "AICDD — the Agentic Capability-Driven Delivery knowledge layer. Stack- and company-agnostic skills for the change lifecycle: inquire, define intent (PRD), author capability changes, plan, implement, review, steward — plus the capability-map build/verify/freshness skills (project-discovery, repository-inventory, historical-prd-discovery, bootstrapper, enricher, map-review, map-refresh).",
   "author": {
     "name": "Jordan Schwartz"
