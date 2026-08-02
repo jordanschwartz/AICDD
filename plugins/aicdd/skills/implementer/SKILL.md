@@ -1,6 +1,14 @@
 ---
-name: implementer
-description: Execute assigned implementation tasks from the execution plan - implement without redesigning, preserving existing architecture and unrelated behavior, updating tests and adding new ones where needed. Produces an implementation summary; it reads capability files under project-context/ but leaves updating them to the steward. Runs at the EXECUTE step of the AICDD change lifecycle, after planning and before review. Part of AICDD, the GLADE knowledge layer.
+name: cdd-implementer
+description: >-
+  Execute assigned implementation tasks from a Capability-Driven Delivery (CDD)
+  execution plan, instantiating an Agent Team directly from assignments.md. Use
+  this skill whenever the user references an execution-plan.md, assignments.md,
+  Capability files, a Capability Graph, an initiative folder, or CDD, or asks to
+  "implement the plan", "run the implementer", "execute assigned tasks", or hands
+  off Engineering Lead output for implementation — even if they don't say
+  "implementer" explicitly. Applies to implementation-only work: the skill
+  executes tasks faithfully, it does not redesign or replan.
 ---
 
 # Implementer Agent
@@ -25,6 +33,12 @@ You do not redesign.
 - Repository
 - Existing implementation
 - Existing tests
+
+Both plan files live in the initiative folder:
+
+```
+project-context/initiatives/{initiative-id}/
+```
 
 ---
 
@@ -55,38 +69,153 @@ Use repository exploration only when necessary.
 
 ---
 
-# Follow the repo's stack conventions (the HOW)
+# Agent Teams
 
-Your inputs say WHAT to build — the plan, the assignments, the capability files, and (when
-present) a hardened spec's obligations and required tests. Those are deliberately
-stack-neutral. The HOW — the framework patterns this codebase uses, and the shape of its
-tests — comes from the repo's **stack plugin** (a `*-dev` plugin enabled for the repo), not
-from you.
+`assignments.md` is the authoritative source of team composition.
 
-Before writing code:
+The Engineering Lead has already determined the team and distributed the work.
+Your job is to instantiate that structure — not to re-derive it.
 
-- **Follow the stack plugin's conventions.** If the repo has a stack plugin, use it for how
-  code is structured here — its `service`/`workflow` guidance and its auto-loaded framework
-  rules — and match the existing code. Do not introduce a different style.
-- **Implement each required test via the stack's recipe.** A hardened spec names *behavioral*
-  test shapes (stack-neutral). Turn each into a real test using the stack's per-stack test
-  recipe (its `test-recipes/<stack>` file) — the recipe carries the framework mechanics and
-  the red-run check.
+## Reading assignments.md
 
-If no stack plugin is present, implement idiomatically for the repo's language and match the
-existing patterns.
+Each entry declares:
 
----
+```
+## Agent N — Role / Specialty
+Assigned Tasks:
+Waits For:
+Focus:
+Expected Output:
+```
 
-# Don't Reimplement What the Framework Provides — Check the Stack's Map First
+Parse every entry. Then resolve each task ID against `execution-plan.md` —
+`assignments.md` carries IDs only, never task bodies. The task body, acceptance
+criteria, and scope come from the execution plan.
 
-Framework behavior (tenancy, authorization, idempotency, unit-of-work, base-class behavior)
-lives in the stack plugin's framework capability map (e.g. `daf-dev`'s bundled map) and its
-auto-loaded guidance — not in the service's code. Before you add code for something the
-framework may already provide — a manual tenant filter, a hand-rolled dedupe, a bespoke auth
-gate — check that map. Not seeing it in the service is not evidence the framework lacks it;
-it's usually evidence the framework provides it for you. If you're unsure whether the
-framework covers it, STOP and check the stack map before writing code. Do not assume absence.
+If a task ID in `assignments.md` has no match in `execution-plan.md`, or an
+execution task appears in no assignment:
+
+STOP. Document the gap.
+
+## Mapping agents to teammates
+
+One declared Agent maps to one teammate.
+
+Do NOT:
+
+- Merge agents to reduce agent count
+- Split a declared agent across multiple teammates
+- Move a task from the agent it was assigned to
+- Create teammates for work no agent was assigned
+
+The Engineering Lead already minimized the team. Treat the count as final.
+
+## Scheduling on task-level readiness
+
+`Waits For` names **task IDs, not agents**. Schedule on that granularity.
+
+An agent becomes eligible to start when every task ID in its `Waits For` list is
+complete — regardless of whether the agents owning those tasks have finished
+their remaining work.
+
+Concretely: if Agent 1 owns Tasks 1 and 2, and Agent 2 waits only for Task 1,
+Agent 2 launches the moment Task 1 lands. It does not wait for Task 2.
+
+This requires per-task completion reporting. Every teammate prompt must instruct
+the teammate to report each task ID as it completes, not to batch reports until
+its assignment is done. Gating agent launches on whole-agent completion serializes
+work the Engineering Lead deliberately parallelized.
+
+## Deriving file ownership
+
+`assignments.md` does not declare file ownership — it declares task ownership.
+
+Derive write boundaries yourself, from each agent's tasks in `execution-plan.md`
+and the Capability files. This is operational safety, not redesign. Do not alter
+task assignment while doing it.
+
+For each teammate, state:
+
+- **OWN** — files only this teammate touches
+- **MAY MODIFY** — shared files, bounded to a named region or additive change
+- **DO NOT TOUCH** — files another teammate owns
+
+Where two concurrently-eligible agents need the same file:
+
+- **Additive conflict** (a new binding, registration, or route alongside existing
+  siblings): give each a bounded instruction naming the exact region it may add
+  to, and forbid edits to sibling entries.
+- **Semantic conflict** (both modify the same behavior, signature, or structure):
+  STOP. Document the collision. Do not invent an ownership split.
+
+## Teammate prompts
+
+Every teammate inherits this entire rule set.
+
+Each teammate prompt must carry:
+
+- Its role/specialty label from `assignments.md`
+- Its assigned task IDs, with the full task bodies resolved from `execution-plan.md`
+- Its `Focus` line verbatim — this is the scope boundary
+- Its `Expected Output` list verbatim
+- Paths to the relevant Capability files, Architecture, AI Context, and Verification
+- The instruction to treat the Capability Graph as the primary source of system understanding
+- Its OWN / MAY MODIFY / DO NOT TOUCH file boundaries
+- What upstream tasks produced — actual signatures and types, not prose descriptions
+- The instruction to report each task ID as it completes
+- The Implementation Summary format
+- The prohibition on redesign, scope expansion, task decomposition, and capability file modification
+- The instruction to STOP and report on ambiguity rather than guess
+
+Honor `Expected Output` literally. An agent whose expected output is tests and
+verification notes does not write feature code. If it finds a defect, it reports
+the defect — it does not fix it outside its assignment.
+
+Spawn teammates with `mode: "bypassPermissions"`.
+
+Do NOT use `isolation: "worktree"` — teammates write directly to the working tree.
+
+## Team setup
+
+```
+TeamCreate  → name drawn from the initiative
+TaskCreate  → one per execution task, not one per agent
+TaskUpdate  → set blockedBy from each agent's Waits For list
+```
+
+Tracking at task granularity is what makes task-level readiness observable.
+
+## As tasks complete
+
+1. `TaskUpdate` → mark the task ID completed
+2. Re-evaluate which agents are now fully unblocked
+3. Launch every newly eligible agent
+4. When an agent finishes all its tasks, collect its Implementation Summary, then
+   `SendMessage` → shutdown_request
+
+## Merging summaries
+
+The lead produces one Implementation Summary for the whole run.
+
+- Merge Completed Tasks, Files Modified, Tests Added, and Tests Updated across teammates
+- Carry verification notes through as their own section when an agent produced them
+- Preserve every teammate's Deviations verbatim, attributed to its agent
+- Never drop, compress, or smooth a reported deviation
+
+## Sequential fallback
+
+Run sequentially, in dependency order, when:
+
+- `assignments.md` declares a single agent
+- The `Waits For` graph admits no concurrency
+- No agent team mechanism is available in the environment
+
+If `assignments.md` is missing, unparseable, or does not state how tasks are
+assigned:
+
+STOP.
+
+Determining team composition is Engineering Lead work. Do not infer it.
 
 ---
 
@@ -112,6 +241,9 @@ Do NOT:
 - Modify unrelated capabilities
 - Rewrite Planner output
 - Modify capability files
+- Modify the execution plan
+- Decompose tasks further
+- Restructure the team declared in assignments.md
 
 If ambiguity exists:
 
