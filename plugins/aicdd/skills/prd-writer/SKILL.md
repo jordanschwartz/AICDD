@@ -1,6 +1,6 @@
 ---
 name: prd-writer
-description: Turn an informed product decision into a precise, implementation-agnostic declaration of desired behavior - answer what should become true by combining current-state understanding from Capability Inquiry, industry and incumbent discovery, and human intent. Writes project-context/initiatives/<slug>/prd.md and touches nothing else under project-context/. Runs at the DEFINE INTENT step of the AICDD change lifecycle, after inquiry and before planning. Part of AICDD, the GLADE knowledge layer.
+description: Turn an informed product decision into a precise, implementation-agnostic declaration of desired behavior - answer what should become true by combining current-state understanding from Capability Inquiry, industry and incumbent discovery, and human intent. Writes project-context/initiatives/[slug]/prd.md and touches nothing else under project-context/. Runs at the DEFINE INTENT step of the AICDD change lifecycle, after inquiry and before planning. Part of AICDD, the GLADE knowledge layer.
 ---
 
 # CDD PRD Writer Skill
