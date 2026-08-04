@@ -62,6 +62,29 @@ correction are written by `steward`/`map-refresh` or a human, never here.
 
 ---
 
+# Running it — dispatch and context budget
+
+This is a multi-agent pass: you fan the work out to independent reviewers (each one
+**not** the map's author) and compile their findings. Two rules keep that from
+quietly defeating itself — because a reviewer whose window is overfull glosses over
+the exact contradictions this skill exists to catch:
+
+- **Scope each reviewer by CONTEXT BUDGET, not by capability count.** Long-context
+  accuracy falls as a window fills — a reviewer drowning in files misses
+  contradictions, so a fat scope silently lowers the quality of the very check you're
+  running. Size each agent's scope to stay well inside its effective window: a large
+  capability (many files / big surface) gets its **own** agent, or is split further;
+  only small, related capabilities share one. "N capabilities per agent" is a bad
+  default — size by how much code each capability actually drags in, not by a count.
+- **Sub-agents return COMPRESSED findings, not raw dumps.** Each reviewer hands back
+  its verdicts, evidence tags, and the `file:line` citations it relied on — never the
+  file contents it read or raw tool output. The orchestrator compiling the report has
+  to keep **its own** window lean; piping every agent's raw reads back into the
+  coordinator rots the context that's doing the adjudication. Report the evidence, not
+  the transcript. (This is the constrained-reporter discipline.)
+
+---
+
 # The evidence bar (enforce it on yourself — this is the whole point)
 
 - **If you can check it, check it before you say it.** Never state an unchecked
