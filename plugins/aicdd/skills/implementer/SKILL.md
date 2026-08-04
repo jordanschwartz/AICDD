@@ -1,5 +1,5 @@
 ---
-name: cdd-implementer
+name: implementer
 description: >-
   Execute assigned implementation tasks from a Capability-Driven Delivery (CDD)
   execution plan, instantiating an Agent Team directly from assignments.md. Use
