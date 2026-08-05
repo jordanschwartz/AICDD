@@ -1,6 +1,6 @@
 ---
 name: historical-prd-discovery
-description: Analyze historical product artifacts - PRDs, feature specs, design docs, RFCs, ADRs, release notes, user stories - to extract recurring business concepts, terminology, intent, and product evolution rather than summarizing individual documents. Gathers from the repo AND, when configured, a tracker (Jira epics/stories) and docs system (Confluence) via the available MCP, plus a commit-history fallback; every concept is tagged with its source. Writes project-context/intent-catalog.json and historical-prd-summary.md for downstream Capability Discovery. Runs during the AICDD knowledge bootstrap, before the bootstrapper constructs the Capability Graph. Part of AICDD, the GLADE knowledge layer.
+description: Analyze historical product artifacts - PRDs, feature specs, design docs, RFCs, ADRs, release notes, user stories - to extract recurring business concepts, terminology, intent, and product evolution rather than summarizing individual documents. Gathers from the repo AND, when configured, a tracker (Jira epics/stories) and docs system (Confluence) via the available MCP, plus a commit-history fallback; every concept is tagged with its source. Writes project-context/intent-catalog.json and historical-prd-summary.md for downstream Capability Discovery. Runs during the AICDD knowledge bootstrap, before the bootstrapper constructs the Capability Graph. Part of AICDD, the AD knowledge layer.
 ---
 
 # Historical PRD Discovery Skill
