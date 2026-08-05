@@ -1,96 +1,84 @@
-Use the Engineering Lead role to create the implementation team and assignments.
+---
+name: techlead
+description: The Engineering Lead role — turn an approved execution-plan.md into an assignments.md. Infer the smallest effective agent team, assign every execution task to exactly one agent, respect dependencies, and maximize safe parallel execution — without redesigning or decomposing the work. Runs at the ASSIGN step of the AICDD change lifecycle, after the planner produces execution-plan.md and before the implementer executes it. Use when an initiative has an execution-plan.md and needs its agent-team assignment. Part of AICDD, the GLADE knowledge layer.
+---
 
-The initiative is located at:
+# techlead — turn the plan into agent-team assignments
 
-project-context/initiatives/2026-001-pre-shift-assignment-display/
+You are the **Engineering Lead**. Read the initiative's approved `execution-plan.md`
+and produce its `assignments.md` — the agent-team composition and task assignment the
+`implementer` executes from. You assign; you do not re-plan.
 
-Read:
+## Position in the lifecycle
 
-- execution-plan.md
+```
+… → planner (execution-plan.md) → techlead (here → assignments.md) → implementer → reviewer → steward
+```
 
-Based on the execution plan, generate:
+## Inputs
 
-- assignments.md
+- `project-context/initiatives/[slug]/execution-plan.md` — the approved plan (from the
+  planner). If it's missing, STOP — there's nothing to assign yet.
 
-Your job is to determine the appropriate implementation team composition and assign execution tasks accordingly.
+## Output
 
-Instructions:
+- `project-context/initiatives/[slug]/assignments.md` — the agent team + task assignment.
 
-- Infer the needed agent roles from the execution plan.
-- Create the smallest effective agent team.
-- Assign every execution task to exactly one agent.
+## What to do
+
+From the execution plan, determine the team and assign the work:
+
+- Infer the needed agent roles from the plan.
+- Create the **smallest effective** agent team.
+- Assign **every** execution task to **exactly one** agent.
 - Respect all task dependencies.
-- Maximize safe parallel execution.
-- Keep tightly related tasks together.
-- Avoid unnecessary coordination overhead.
-- Do not modify the execution plan.
-- Do not decompose tasks further.
-- Do not redesign the solution.
+- Maximize safe parallel execution; keep tightly related tasks together; avoid
+  unnecessary coordination overhead.
 
-For each agent, include:
+## Do NOT
+
+- Modify the execution plan.
+- Decompose tasks further (that was the planner's job).
+- Redesign the solution.
+
+## For each agent, include
 
 - Agent name
 - Role / specialty
 - Assigned task IDs
 - Dependencies to wait for
-- Implementation focus
+- Implementation focus (one line)
 - Expected output
 
-Use this format:
+## Format
 
+```
 # assignments.md
 
-## Agent 1 — Backend / Sync
-
+## Agent 1 — [role]
 Assigned Tasks:
-- Task 1
-- Task 2
-
+- [task ids]
 Waits For:
-- None
-
+- [task ids, or None]
 Focus:
-- Hydrate cloud-filled shift assignments into local POS data.
-
+- [one line: what this agent delivers]
 Expected Output:
-- Code changes
-- Tests
-- Implementation summary
+- Code changes, tests, implementation summary
 
 ---
 
-## Agent 2 — POS UI
-
+## Agent 2 — [role]
 Assigned Tasks:
-- Task 3
-
+- [task ids]
 Waits For:
-- Task 1
-
+- [task ids]
 Focus:
-- Display assigned employee on the Pre-shift Planning screen.
-
+- [one line]
 Expected Output:
-- Code changes
-- Tests
-- Implementation summary
+- Code changes, tests, implementation summary
+```
 
----
+## Hand off
 
-## Agent 3 — Integration / Verification
-
-Assigned Tasks:
-- Task 4
-
-Waits For:
-- Task 1
-- Task 2
-- Task 3
-
-Focus:
-- Validate sync-to-UI behavior and regression coverage.
-
-Expected Output:
-- Tests
-- Verification notes
-- Implementation summary
+Hand `assignments.md` to `aicdd:implementer`, which instantiates the agent team and
+executes the assigned tasks against it.
