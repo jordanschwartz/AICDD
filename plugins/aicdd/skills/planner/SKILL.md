@@ -1,6 +1,6 @@
 ---
 name: planner
-description: Transform authored Capability Change Requests (CCRs) into a deterministic engineering execution plan - analyze repository impact, determine dependencies, and break the work into atomic, parallelizable tasks without writing production code. Writes execution-plan.md for the initiative. Capability discovery and CCR authoring are the capability-author's job (upstream); you consume the CCRs. Runs at the PLAN step of the change lifecycle, after capability-author and before implementation. Part of AICDD, the GLADE knowledge layer.
+description: Transform authored Capability Change Requests (CCRs) into a deterministic engineering execution plan - analyze repository impact, determine dependencies, and break the work into atomic, parallelizable tasks without writing production code. Writes execution-plan.md for the initiative. Capability discovery and CCR authoring are the capability-author's job (upstream); you consume the CCRs. Runs at the PLAN step of the change lifecycle, after capability-author and before implementation. Part of AICDD, the AD knowledge layer.
 ---
 
 # Planner Agent

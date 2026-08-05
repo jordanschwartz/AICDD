@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "aicdd",
-  "description": "AICDD — the Agentic Capability-Driven Delivery knowledge layer: stack- and company-agnostic skills for building/verifying a capability map and running the change lifecycle. Consumed by GLADE and any other ecosystem that wants the neutral method.",
+  "description": "AICDD — the Agentic Capability-Driven Delivery knowledge layer: stack- and company-agnostic skills for building/verifying a capability map and running the change lifecycle. Consumed by AD and any other ecosystem that wants the neutral method.",
   "owner": {
     "name": "Jordan Schwartz"
   },

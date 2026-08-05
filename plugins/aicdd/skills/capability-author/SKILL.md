@@ -1,6 +1,6 @@
 ---
 name: capability-author
-description: Map a hardened spec (or PRD) to the capability graph and author one Capability Change Request (CCR) per impacted capability — what each capability must become. Performs Capability Discovery (extend existing vs. new); does NOT decompose work into tasks or write code. Tags each CCR with the plain-language acceptance criteria it delivers, so a non-engineer can confirm intent at this gate. Writes CCR files. Runs at the AUTHOR-CAPABILITY-CHANGES step of the change lifecycle, after the spec is hardened and before the planner. Part of AICDD, the GLADE knowledge layer.
+description: Map a hardened spec (or PRD) to the capability graph and author one Capability Change Request (CCR) per impacted capability — what each capability must become. Performs Capability Discovery (extend existing vs. new); does NOT decompose work into tasks or write code. Tags each CCR with the plain-language acceptance criteria it delivers, so a non-engineer can confirm intent at this gate. Writes CCR files. Runs at the AUTHOR-CAPABILITY-CHANGES step of the change lifecycle, after the spec is hardened and before the planner. Part of AICDD, the AD knowledge layer.
 ---
 
 # Capability Author

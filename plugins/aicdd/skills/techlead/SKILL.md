@@ -1,6 +1,6 @@
 ---
 name: techlead
-description: The Engineering Lead role — turn an approved execution-plan.md into an assignments.md. Infer the smallest effective agent team, assign every execution task to exactly one agent, respect dependencies, and maximize safe parallel execution — without redesigning or decomposing the work. Runs at the ASSIGN step of the AICDD change lifecycle, after the planner produces execution-plan.md and before the implementer executes it. Use when an initiative has an execution-plan.md and needs its agent-team assignment. Part of AICDD, the GLADE knowledge layer.
+description: The Engineering Lead role — turn an approved execution-plan.md into an assignments.md. Infer the smallest effective agent team, assign every execution task to exactly one agent, respect dependencies, and maximize safe parallel execution — without redesigning or decomposing the work. Runs at the ASSIGN step of the AICDD change lifecycle, after the planner produces execution-plan.md and before the implementer executes it. Use when an initiative has an execution-plan.md and needs its agent-team assignment. Part of AICDD, the AD knowledge layer.
 ---
 
 # techlead — turn the plan into agent-team assignments
