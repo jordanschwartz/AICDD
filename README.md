@@ -1,846 +1,229 @@
 # Capability-Driven Delivery (CDD)
 
-> **Traditional software development manages work and reconstructs knowledge. Capability-Driven Delivery manages knowledge and derives work.**
+> **Traditional software delivery manages work and reconstructs knowledge. Capability-Driven Delivery manages knowledge and derives work.**
 
 ---
 
-# Overview
+## Overview
 
-Capability-Driven Delivery (CDD) is an AI-native software delivery methodology that treats **system understanding as a first-class artifact**.
+CDD is an AI-native delivery methodology that treats **system understanding as a first-class, versioned artifact**.
 
-Rather than repeatedly reconstructing context from source code, tickets, and documentation for every initiative, CDD builds and maintains a **persistent knowledge model** of the system that continuously evolves alongside the implementation.
+Most delivery processes rebuild understanding at the start of every initiative — reading source, hunting tickets, asking whoever was here last time. That rebuild is expensive, it produces a slightly different answer each time, and none of it survives the initiative.
 
-Every initiative begins from that knowledge model and ends by improving it.
+CDD replaces the rebuild with a **capability graph**: a persistent, committed model of what the system does and why. Every initiative begins by reading it and ends by improving it.
+
+The graph is not documentation about the system. It is the artifact the work is planned from.
 
 ---
 
-# Install (Claude Code plugin)
+## Where CDD sits
 
-AICDD ships as a plugin in this repo's own marketplace:
+There is a growing category of tools that give coding agents a map of a codebase — repo maps, code graphs, semantic indexes. They read the source, produce a description an agent can consume faster than the raw files, and regenerate that description when the code changes. Most treat the result as a local cache: regenerable, disposable, correctly kept out of version control.
+
+That design solves a real problem, and it solves it well. It also has a defining property: **a map derived from code can only contain what the code already contains.** It cannot be wrong about the system, because it is a projection of the system. It can only be out of date.
+
+CDD's capability graph is authored rather than derived, and it holds three things a projection cannot:
+
+- **Intent.** `if (balance < 0) reject()` is in the source. *Why* that rule exists, what outcome it protects, and what it would cost to relax it are not.
+- **Rejected alternatives.** The design space that was considered and closed. Removed from the code by definition.
+- **A behavioral contract stated independently of the implementation.** What the system promises, expressed so that a refactor does not change it and a regression shows up as a divergence.
+
+That third one is load-bearing. Because the capability graph makes an independent claim, it *can* disagree with the code — and that disagreement is the signal. "Is this a bug or an undocumented change?" is answerable only against a stated contract. A derived map has nothing to diverge from.
+
+|                        | Derived code map                      | CDD capability graph                          |
+| ---------------------- | ------------------------------------- | --------------------------------------------- |
+| Source of truth        | The code                              | Authored intent, verified against code        |
+| Lifecycle              | Regenerated, typically gitignored     | Authored, committed, reviewed, versioned      |
+| Can be wrong           | No — only stale                       | Yes, deliberately                             |
+| Organizing unit        | Subsystem, module, symbol             | Business capability                           |
+| Primary consumer       | The coding agent                      | Product and engineering, then agents          |
+| Standing cost          | Rebuild time                          | Ongoing stewardship                           |
+
+**These layers compose.** CDD does not replace a code map and does not care which one you use. A good structural map is a useful input to the Bootstrapper and to the Planner's repository-impact analysis. CDD's claim is about the layer above: that delivery itself should start and end at a persistent model of what the system promises.
+
+### The cost this design incurs
+
+A capability graph is organized by business behavior, so the mapping from capability to code is not derivable — it has to be maintained. It decays, and decay is invisible until someone trusts a stale claim. This is the central operational risk of the methodology, and CDD answers it with explicit freshness machinery rather than by pretending it away: watermarks per capability, a read-only adversarial audit, an incremental refresh, and a mandatory steward step at the end of every initiative. See [Keeping the map current](#keeping-the-map-current).
+
+---
+
+## Core idea: capabilities, not work items
+
+Traditional delivery revolves around **work artifacts** — epics, stories, tasks, bugs. They are useful while work is in flight and become historical records the moment it ships.
+
+CDD's unit is the **capability**: an enduring business behavior the system provides, named from the outside, in the vocabulary a user or a product manager would recognize.
+
+Capabilities outlive the initiatives that change them. A ticket says *what someone did in March*. A capability says *what the system promises today*.
+
+This has a practical consequence for who can participate. Because capabilities are named by observable behavior rather than by module, Product can read and approve a **Capability Change Request** — the artifact that says what each capability must become — before any work is decomposed. The review gate sits on the design decision, not just on the plan.
+
+**Execution plans are temporary. Knowledge is permanent.**
+
+---
+
+## Lifecycle
+
+```
+BOOTSTRAP (once)                    DELIVERY (every initiative)
+
+  Project Discovery                   Inquiry
+         │                               │  "What is true today?"
+  Repository Inventory                   ▼
+         │                            Current-State Brief
+  Historical PRD Discovery               │
+         │                               ▼
+  Bootstrapper                        PRD Writer
+         │                               │  "What should become true?"
+  Enricher                               ▼
+         ▼                             PRD
+  Capability Graph  ◄──────┐             │
+                           │             ▼
+                           │      Capability Author
+                           │             │  "What must each capability become?"
+                           │             ▼
+                           │           CCR(s)  ──► review gate
+                           │             │
+                           │             ▼
+                           │          Planner ──► Execution Plan ──► Assignments
+                           │             │
+                           │             ▼
+                           │        Implementer ──► Reviewer
+                           │             │
+                           └─────────  Steward
+                                         (graph updated)
+```
+
+The loop is the point. The graph is an input to the first step and an output of the last one.
+
+---
+
+## Quick start
+
+CDD ships as a Claude Code plugin from this repo's own marketplace:
 
 ```
 /plugin marketplace add https://github.com/jordanschwartz/AICDD
 /plugin install aicdd@aicdd
 ```
 
-Skills are then available namespaced — `aicdd:inquiry`, `aicdd:prd-writer`,
-`aicdd:capability-author`, `aicdd:planner`, etc. CDD wires this up automatically via
-`CDD-setup` (it registers this marketplace and enables the plugin); you only add it by
-hand for standalone use.
+Skills are then namespaced — `aicdd:inquiry`, `aicdd:prd-writer`, `aicdd:capability-author`, `aicdd:planner`. `CDD-setup` wires this automatically; you only add it by hand for standalone use.
 
-The step-by-step commands below are shown bare (`/inquiry`) for brevity — with the plugin
-installed, invoke them namespaced (`/aicdd:inquiry`).
+Then build the graph:
+
+```
+mkdir project-context
+
+/project-discovery          # project.md — high-level understanding
+/repository-inventory       # repository-inventory.md — structural inventory
+/historical-prd-discovery   # intent-catalog.json — historical business intent
+/bootstrapper               # capabilities.json + capabilities/CAP-NNN-*/
+/enricher CAP-001 CAP-002   # deepen each capability (parallelize on large repos)
+```
+
+Deliver a change:
+
+```
+/inquiry                    # what is true today → current-state-brief.md
+/prd-writer <initiative>    # what should become true → prd.md
+/capability-author <init>   # which capabilities change, and how → CCR/
+/planner <initiative>       # decompose → execution-plan.md
+   ── review gate: CCRs and execution plan ──
+/techlead <initiative>      # → assignments.md
+/implementer <initiative>
+/reviewer <initiative>
+/steward <initiative>       # sync the graph — the initiative is not done until this runs
+```
+
+Full walkthrough with inputs, outputs, and examples for each step: **[docs/reference.md](docs/reference.md)**.
 
 ---
 
-# Core Philosophy
+## Keeping the map current
 
-Traditional software delivery revolves around **work artifacts**:
+The graph is built once, then maintained. Four skills touch it; pick by intent.
 
-* Epics
-* User Stories
-* Tasks
-* Bugs
+| You want to…                                                  | Run                         | What it does                                                                                                                                                            |
+| ------------------------------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bring the map up to date** (code moved, or scheduled check) | `/aicdd:map-refresh`        | The default freshness tool. *Incremental* re-verifies only what moved since each capability's watermark; *full re-eval* re-discovers and red-teams the whole map. Writes. |
+| **Audit without changing anything**                           | `/aicdd:map-review`         | Read-only. Adversarial "disprove it" pass, independent second read, and a completeness hunt for missing capabilities. Produces findings for a human.                     |
+| **Deepen an accurate-but-thin map**                           | `/aicdd:enricher CAP-0NN …` | Improves quality and completeness of existing capabilities. Never adds, removes, or renames one.                                                                        |
+| **Record a change you just shipped**                          | `/aicdd:steward`            | Syncs only the capability sections the change touched. The last step of the delivery lifecycle.                                                                          |
 
-These artifacts are valuable during execution but become historical records once work is complete.
-
-CDD shifts the focus toward **Capabilities**.
-
-Capabilities represent enduring business behavior that evolves over the lifetime of the system.
-
-Execution plans are temporary.
-
-Knowledge is permanent.
+Rule of thumb: **refresh** to keep it true, **review** to audit without touching, **enricher** to deepen, **steward** to record. `map-refresh` writes; `map-review` only reports.
 
 ---
 
-# Getting Started
+## What a capability holds
 
-## Step 1 - Create the Project Context
+Each capability is a directory under `project-context/capabilities/CAP-NNN-slug/`:
 
-Create a folder in the root of your repository:
+| File                | Holds                                                              |
+| ------------------- | ------------------------------------------------------------------ |
+| `intent.md`         | Business purpose, customer value, goals, constraints                |
+| `behavior.md`       | Observable behavior, business rules, state transitions, edge cases  |
+| `architecture.md`   | Responsibilities, interactions, ownership boundaries                |
+| `implementation.md` | Where it lives — modules, services, entry points. Navigation only.  |
+| `verification.md`   | Acceptance and integration expectations, critical scenarios         |
+| `history.md`        | Business evolution and major architectural changes                  |
+| `dependencies.md`   | Relationships to other capabilities                                 |
+| `ai-context.md`     | Navigation hints, assumptions, extension points, known pitfalls     |
 
-```text
-project-context/
-```
-
-This folder will contain the persistent knowledge model.
-
----
-
-## Step 2 - Run Project Discovery
-
-Execute:
-
-```
-/project-discovery
-```
-
-This generates:
-
-```
-project-context/
-
-    project.md
-
-    manifest.json
-```
-
-These files establish high-level understanding of the repository.
+The split is deliberate. `intent.md` and `behavior.md` are the parts a projection of the code could not have produced; `implementation.md` is a pointer, not a description, so that refactors do not invalidate the capability.
 
 ---
 
-## Step 3 - Run Repository Inventory
-
-Execute:
+## Repository layout
 
 ```
-/repository-inventory
-```
-
-This generates:
-
-```
-project-context/
-
-    repository-inventory.md
-```
-
-This provides a structural inventory of the repository.
-
----
-
-## Step 4 - Run Historical PRD Discovery
-
-Execute:
-
-```
-/historical-prd-discovery
-```
-
-This generates:
-
-```
-project-context/
-
-    intent-catalog.json
-
-    historical-prd-summary.md
-```
-
-These artifacts establish historical business intent and terminology.
-
----
-
-## Step 5 - Run the Bootstrapper
-
-Execute:
-
-```
-/bootstrapper
-```
-
-The Bootstrapper synthesizes:
-
-* Project Discovery
-* Repository Inventory
-* Historical Product Intent
-* Source Code
-* Documentation
-
-into an initial Capability Graph.
-
-It generates:
-
-```text
-project-context/
-
-    capabilities.json
-
-    capabilities/
-
-        CAP-001/
-
-        CAP-002/
-
-        ...
-```
-
----
-
-## Step 6 - Run the Enricher
-
-Execute:
-
-```
-/enricher
-```
-
-Pass the capability(s) you wish to enrich.
-
-Example:
-
-```
-/enricher CAP-001
-```
-
-or
-
-```
-/enricher CAP-001 CAP-002 CAP-003
-```
-
-For large repositories, launch multiple background agents simultaneously.
-
-Example:
-
-```
-Agent 1 → CAP-001 ... CAP-005
-
-Agent 2 → CAP-006 ... CAP-010
-
-Agent 3 → CAP-011 ... CAP-015
-```
-
-This significantly accelerates enrichment.
-
----
-
-# The Knowledge Model is Now Ready
-
-At this point the repository contains a persistent Capability Graph that becomes the foundation for all future initiatives.
-
----
-
-# Keeping the Map Current
-
-The map is built once, then maintained. Four skills touch it — pick by intent:
-
-| You want to… | Run | What it does |
-|---|---|---|
-| **Re-check the map and bring it up to date** (code changed, or a scheduled check) | `/aicdd:map-refresh` | The default freshness tool. Two tiers — *incremental* (re-verify only what moved since each capability's watermark) and *full re-eval* (re-discover + red-team the whole map). Re-verifies guarantees and writes the map's freshness state. |
-| **Audit the map without changing it** (findings only — e.g. before trusting it) | `/aicdd:map-review` | Read-only. Adversarial "disprove it" pass + independent second read + a completeness hunt for missing capabilities. Produces findings for a human; changes nothing. |
-| **Deepen an accurate-but-thin map** | `/aicdd:enricher CAP-0XX …` | Improves quality/completeness of existing capabilities; never adds, removes, or renames one. |
-| **Record a change you just shipped** | `/aicdd:steward` | Syncs only the capability sections the change touched. The last step of the delivery lifecycle. |
-
-Rule of thumb: **refresh** to keep it true, **review** to audit without touching, **enricher** to deepen, **steward** to record a shipped change. `map-refresh` *writes*; `map-review` only *reports*.
-
----
-
-# Delivering a Change
-
-## Step 1 - Create an Initiative
-
-Create:
-
-```text
-project-context/initiatives/
-
-    001-add-reporting-exports/
-```
-
-This folder will hold every artifact produced for the initiative.
-
-The PRD is not written by hand.
-
-It is produced by the PRD Writer after Capability Inquiry.
-
----
-
-## Step 2 - Run Inquiry
-
-Execute:
-
-```
-/inquiry
-```
-
-Ask about the area of the system you are considering changing.
-
-Example:
-
-```
-/inquiry How do reporting exports work today?
-```
-
-Inquiry answers:
-
-> What is true today?
-
-It reads the Capability Graph and, only when necessary, verifies against the repository.
-
-When ready to prepare for a PRD, ask for a Current-State Brief:
-
-```
-current-state brief
-```
-
-Inquiry generates:
-
-```
-project-context/initiatives/001-add-reporting-exports/
-
-    current-state-brief.md
-```
-
-This brief establishes the shared understanding of existing behavior that the PRD will build against.
-
----
-
-## Step 3 - Run PRD Writer
-
-Execute:
-
-```
-/prd-writer
-```
-
-Pass the initiative directory and describe the desired change.
-
-Example:
-
-```
-/prd-writer project-context/initiatives/001-add-reporting-exports/
-```
-
-The PRD Writer answers:
-
-> What should become true?
-
-It reads the Current-State Brief, clarifies product intent, optionally performs industry and incumbent research, and produces:
-
-```
-project-context/initiatives/001-add-reporting-exports/
-
-    prd.md
-```
-
-The PRD is implementation-agnostic.
-
-It describes desired product behavior, business rules, scope boundaries, and success criteria.
-
----
-
-## Step 4 - Run Capability Author
-
-Execute:
-
-```
-/capability-author
-```
-
-Pass the initiative directory.
-
-Example:
-
-```
-/capability-author project-context/initiatives/001-add-reporting-exports/
-```
-
-Capability Author performs Capability Discovery against the spec/PRD — deciding which capabilities change — and authors one CCR per impacted capability describing *what each must become*:
-
-```
-project-context/initiatives/001-add-reporting-exports/
-
-    CCR/
-```
-
-This is the first half of what the Planner used to do. Splitting it isolates the design decision — *which capabilities change, and how* — behind its own review gate, before any work is decomposed.
-
----
-
-## Step 5 - Run Planner
-
-Execute:
-
-```
-/planner
-```
-
-Pass the initiative directory.
-
-Example:
-
-```
-/planner project-context/initiatives/001-add-reporting-exports/
-```
-
-Planner **consumes the CCRs**, analyzes repository impact, and decomposes the work into atomic, parallelizable tasks:
-
-```
-project-context/initiatives/001-add-reporting-exports/
-
-    execution-plan.md
-```
-
----
-
-## Step 6 - Review
-
-Engineering and Product review:
-
-* CCR(s) — are these the right capability changes?
-* execution-plan.md — is this the right work plan?
-
-The CCR describes how existing capabilities evolve.
-
-The execution plan describes how implementation will occur.
-
----
-
-## Step 7 - Generate Assignments
-
-Execute:
-
-```
-/techlead
-```
-
-Pass the initiative directory.
-
-Example:
-
-```
-/techlead project-context/initiatives/001-add-reporting-exports/
-```
-
-This produces:
-
-```
-assignments.md
-```
-
-which assigns execution tasks to implementation agents while maximizing parallel execution.
-
----
-
-## Step 8 - Implement
-
-Execute:
-
-```
-/implementer
-```
-
-Pass the initiative directory.
-
-The Implementer executes the assignment plan using the generated agent team.
-
----
-
-## Step 9 - Review
-
-Execute:
-
-```
-/reviewer
-```
-
-Pass the initiative directory.
-
-The Reviewer validates:
-
-* CCR compliance
-* Execution Plan compliance
-* Architecture
-* Behavior
-* Test coverage
-* Regression risk
-
----
-
-## Step 10 - Update Knowledge
-
-After implementation has been approved:
-
-Execute:
-
-```
-/steward
-```
-
-Pass the initiative directory.
-
-The Steward synchronizes the Capability Graph with the newly implemented behavior.
-
-The initiative is complete.
-
----
-
-# Repository Layout
-
-```text
 repository/
-
-├── project-context/
-│
-│   ├── project.md
-│   ├── manifest.json
-│   ├── repository-inventory.md
-│   ├── intent-catalog.json
-│   ├── historical-prd-summary.md
-│   ├── capabilities.json
-│   │
-│   ├── capabilities/
-│   │
-│   │   ├── CAP-001/
-│   │   ├── CAP-002/
-│   │   └── ...
-│   │
-│   └── initiatives/
-│
-│       └── 001-add-reporting-exports/
-│
-│           ├── current-state-brief.md
-│           ├── prd.md
-│           ├── CCR/
-│           ├── execution-plan.md
-│           ├── assignments.md
-│           └── review-report.md
+└── project-context/
+    ├── project.md
+    ├── manifest.json
+    ├── repository-inventory.md
+    ├── intent-catalog.json
+    ├── historical-prd-summary.md
+    ├── capabilities.json
+    ├── capabilities/
+    │   ├── CAP-001-payment-processing/
+    │   ├── CAP-002-reporting-exports/
+    │   └── …
+    └── initiatives/
+        └── 001-add-reporting-exports/
+            ├── current-state-brief.md
+            ├── prd.md
+            ├── CCR/
+            ├── execution-plan.md
+            ├── assignments.md
+            └── review-report.md
 ```
 
-AICDD skills come from the `aicdd` plugin (installed from this marketplace), not a folder in the consuming repository.
+Skills come from the `aicdd` plugin, not from a folder in the consuming repository.
 
 ---
 
-# Capability Structure
+## Status
 
-Each capability contains:
+This is **v0.1**. It has been run end-to-end on real repositories, including a 15-capability bootstrap and enrichment pass on a production servicing codebase.
 
-```text
-CAP-001/
+What is not yet established:
 
-    intent.md
+- **The maintenance tax has not been measured against the context savings.** The methodology's central claim is that stewardship costs less than repeated reconstruction. That is a testable proposition and it has not yet been tested under controlled conditions.
+- **Bootstrap quality is doing unexamined work.** The initial graph is seeded by the same inference CDD exists to replace. How much bootstrap error survives enrichment, and how it propagates, is an open question.
+- **Capability decomposition has no formal story for cross-cutting concerns** or for refactoring the graph itself as a system's shape changes.
 
-    behavior.md
-
-    architecture.md
-
-    implementation.md
-
-    verification.md
-
-    history.md
-
-    dependencies.md
-
-    ai-context.md
-```
+Working notes, known instruction defects, and observations from real runs are kept in [docs/notes/](docs/notes/) rather than here.
 
 ---
 
-# Capability Artifact Descriptions
+## Reference
 
-## intent.md
-
-Describes:
-
-* Business purpose
-* Customer value
-* Goals
-* Constraints
+- **[docs/reference.md](docs/reference.md)** — full step-by-step walkthrough and glossary
+- **[docs/notes/](docs/notes/)** — working notes and known gaps
 
 ---
 
-## behavior.md
-
-Describes:
-
-* Observable behavior
-* Business rules
-* State transitions
-* Edge cases
-
----
-
-## architecture.md
-
-Describes:
-
-* Responsibilities
-* High-level interactions
-* Ownership boundaries
-* System organization
-
----
-
-## implementation.md
-
-Documents:
-
-* Repository locations
-* Modules
-* Services
-* Entry points
-
-Provides navigation guidance.
-
----
-
-## verification.md
-
-Documents:
-
-* Acceptance expectations
-* Integration expectations
-* Critical scenarios
-* Edge cases
-
----
-
-## history.md
-
-Captures:
-
-* Business evolution
-* Major architectural changes
-* Historical context
-
----
-
-## dependencies.md
-
-Documents relationships between capabilities.
-
----
-
-## ai-context.md
-
-Provides:
-
-* Repository navigation hints
-* Architectural assumptions
-* Extension points
-* Existing patterns
-* Common pitfalls
-
-This file exists exclusively to reduce future context reconstruction.
-
----
-
-# Glossary
-
-## Capability
-
-An enduring business behavior implemented by the system.
-
-Capabilities evolve over time and outlive individual initiatives.
-
----
-
-## Capability Graph
-
-The complete collection of capability knowledge representing system understanding.
-
-It is the primary artifact of CDD.
-
----
-
-## Current-State Brief
-
-A synthesized description of what the system does today for the area under consideration.
-
-Produced by Inquiry.
-
-Provides the baseline that the PRD is written against.
-
----
-
-## PRD (Product Requirements Document)
-
-Describes the business problem and desired outcome.
-
-Produced by the PRD Writer in collaboration with Product.
-
-Does not reference implementation.
-
----
-
-## CCR (Capability Change Request)
-
-Describes how one or more capabilities must evolve to satisfy a PRD.
-
-Generated by the Capability Author (one CCR per impacted capability).
-
-Bridges Product intent and Engineering implementation.
-
----
-
-## Execution Plan
-
-A temporary implementation plan generated from the Capability Graph.
-
-Exists only for the duration of the initiative.
-
----
-
-## Assignment Plan
-
-Maps execution tasks to implementation agents while maximizing parallel execution.
-
----
-
-## Bootstrapper
-
-Constructs the initial Capability Graph from the repository and historical artifacts.
-
----
-
-## Enricher
-
-Improves the quality of existing capabilities.
-
-Does not create new capabilities.
-
----
-
-## Inquiry
-
-Answers the question "What is true today?".
-
-Reads the Capability Graph and, only when necessary, verifies against the repository.
-
-Produces conversational answers or a Current-State Brief.
-
-Does not define desired future state.
-
----
-
-## PRD Writer
-
-Answers the question "What should become true?".
-
-Takes the Current-State Brief plus human intent and, optionally, industry and incumbent research to produce a precise, implementation-agnostic PRD.
-
-Does not plan the change.
-
----
-
-## Capability Author
-
-Performs Capability Discovery and authors one CCR per impacted capability — *what each capability must become*. Runs after the PRD (and, when a consumer like CDD inserts a spec-hardening step, after the spec is hardened) and before the Planner. Does not decompose work or write code.
-
----
-
-## Planner
-
-Consumes the CCRs from the Capability Author and decomposes them into an execution plan — repository impact, dependencies, and atomic, parallelizable tasks. Does not author capabilities.
-
----
-
-## Implementer
-
-Executes assigned implementation tasks.
-
----
-
-## Reviewer
-
-Validates implementation against the approved CCR and execution plan.
-
----
-
-## Steward
-
-Synchronizes the Capability Graph after implementation is complete.
-
----
-
-# Lifecycle
-
-```text
-Knowledge Bootstrap
-
-Project Discovery
-        │
-Repository Inventory
-        │
-Historical PRD Discovery
-        │
-Bootstrapper
-        │
-Enricher
-        ▼
-Capability Graph
-
-
-Delivery
-
-Inquiry
- │
- ▼
-Current-State Brief
- │
- ▼
-PRD Writer
- │
- ▼
-PRD
- │
- ▼
-Capability Author
- │
- ▼
-CCR(s)
- │
- ▼
-Planner
- │
- ▼
-Execution Plan
- │
- ▼
-Assignments
- │
- ▼
-Implementer
- │
- ▼
-Reviewer
- │
- ▼
-Steward
- │
- ▼
-Updated Capability Graph
-```
-
----
-
-# Guiding Principle
+## Guiding principle
 
 > **Every initiative should leave the system easier to understand than it was before the initiative began.**
 
-The objective of CDD is not simply to automate software development.
-
-The objective is to build a persistent understanding of the system that compounds over time, allowing both humans and AI agents to spend less time reconstructing context and more time delivering value.
-
----
-
-## CDD packaging notes
-
-Instruction fixes found in the first real use of these skills (packaging them for Claude Code under CDD). Each one is a gap or conflict in the skill instructions themselves, recorded here until the skill bodies are revised:
-
-1. **manifest.json belongs to the bootstrapper alone.** Both project-discovery and bootstrapper currently claim `project-context/manifest.json` as an output. Two writers for one file means the second run silently overwrites the first. The bootstrapper should own it; project-discovery should write only `project.md`.
-
-2. **historical-prd-discovery needs a documented fallback for repos with zero PRDs/ADRs.** Many real repos have no historical product artifacts at all. When none exist, the skill should fall back to mining commit-message themes (frequency of recurring business terms across commit history) and clearly label the resulting intent catalog as commit-derived, not PRD-derived, so downstream agents know the confidence level.
-
-3. **repository-inventory endpoint granularity is controller-level.** The skill should state explicitly that API endpoints are inventoried at the controller (or router/module) level, not per-route. Per-route inventories balloon on large services and duplicate what the source itself expresses better.
-
-4. **Capability directory slug rule should be explicit.** Capability directories follow `CAP-NNN-lowercase-hyphen` (zero-padded three-digit number, then a lowercase hyphenated slug, e.g. `CAP-007-payment-processing`). The bootstrapper body shows `CAP-001-...` by example only; the rule should be stated so independently bootstrapped repos produce consistent names.
-
-### Enricher notes from first full run (servicing, 15 capabilities, 2026-07-13)
-1. Permit read-only `git log` explicitly — history.md guidance implies mining evolution, but "do not run git commands" forbids it.
-2. Say where evidence citations belong per file type (intent/behavior avoid implementation detail, yet evidence-only demands citable paths).
-3. Parallel enrichers in one worktree can't self-verify scope via git status — the orchestrator should own scope checks per batch.
-4. Bless evidence-based correction of wrong bootstrap claims (14+ found in one run) and require a correction note.
-5. Standard resolution for boundary-straddling code: document the seam in dependencies.md — agents converged on this independently.
-6. Add a channel for source-doc defects found during enrichment (stale diagrams/docs) — currently parked in ai-context pitfall notes.
-
-### Framework/plugin-mode notes (from building the DAF map, 2026-07-13)
-The bootstrap skills assume a business app and fight a framework/substrate map. A "plugin mode" should:
-1. Invert the capability rule — for a framework, "Command Pipeline / Message Delivery / Unit of Work" ARE the capabilities (the skills list these shapes as *bad* examples for business apps).
-2. Name capabilities by the guarantee a consumer relies on, not a business behavior.
-3. Allow implementation facts in the map — a framework's guarantee often IS an implementation fact (commit ordering, fail-open cache); load verification.md, keep intent.md thin.
-4. historical-prd-discovery has no PRDs for a framework — fall back to XML doc-comments (label "source") + commit history (label "commit-derived").
-5. intent-catalog.json is business-vocabulary shaped; repurpose for framework-contract concepts.
+The objective is not to automate software development. It is to build an understanding of the system that compounds, so that humans and agents alike spend less time reconstructing context and more time changing behavior on purpose.
